@@ -68,10 +68,10 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    m_driverController.button(1).onTrue(shoot);
+    m_driverController.button(6).onTrue(shoot);
     m_driverController.button(2).onTrue(intake);
-    m_driverController.button(3).onTrue(outake);
-    m_driverController.button(4).onTrue(transfer);
+    m_driverController.button(4).onTrue(outake);
+    m_driverController.button(5).onTrue(transfer);
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     // new Trigger(m_exampleSubsystem::exampleCondition)

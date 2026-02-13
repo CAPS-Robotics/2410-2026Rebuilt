@@ -22,7 +22,10 @@ public final class Constants {
     public static final int kFunctionsControllerPort = 1;
 
     //Intake
-    public static final int KIntakeMotor = 10;
+    public static final int KIntakeMotor = 11;
+    public static final int KFlywheelMotor = 15;
+    public static final int KBackRollerMotor = 10;
+
 
     //Drive Motors
     public static final int kFrontLeftDrive = 5;
@@ -36,6 +39,7 @@ public final class Constants {
     public static final int kFrontRightSteering = 2;
     public static final int kBackLeftSteering  = 8;
     public static final int kBackRightSteering = 6;
+
 
 
     //Encoders

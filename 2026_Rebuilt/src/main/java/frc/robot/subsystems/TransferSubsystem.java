@@ -7,7 +7,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 public class TransferSubsystem extends SubsystemBase{
 
 
-    private SparkMax transfer = new SparkMax(0, MotorType.kBrushless);
+    private SparkMax transfer = new SparkMax(14, MotorType.kBrushless);
 
 
     public void transfer(){
@@ -15,3 +15,4 @@ public class TransferSubsystem extends SubsystemBase{
     }
 
 }
+    
