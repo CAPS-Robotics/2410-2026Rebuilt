@@ -81,6 +81,7 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
     
         public SwerveDrivetrainSubsystem(){   
              
+            this.setDefaultCommand(new RunCommand(()-> this.driveSwerve(RobotContainer.m_driverController), this ));
             
     
         }
@@ -99,7 +100,7 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
 
             Yaw = Navx.getRotation2d();
 
-            double velocityX = -1 * driveController.getY();
+            double velocityX = 1 * driveController.getY();
             double velocityY = 1 * driveController.getX();
             double omega = 1 * driveController.getZ();
             

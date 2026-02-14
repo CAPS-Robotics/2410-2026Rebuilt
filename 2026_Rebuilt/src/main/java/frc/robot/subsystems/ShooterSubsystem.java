@@ -17,9 +17,16 @@ public class ShooterSubsystem extends SubsystemBase{
 
     public void shoot(){
 
-        flywheel.set(0.5);
-        backRollers.set(0.5);
+        flywheel.set(-0.75);
+        backRollers.set(-0.75);
         // feedRollers.set(0.5);
+    }
+
+    public void stop(){
+        flywheel.set(0);
+        backRollers.set(0);
+
+        
     }
 
 }

@@ -12,11 +12,15 @@ public class IntakeSubsystem extends SubsystemBase{
 
 
     public void intake(){
-        intakeRoller.set(1);
+        intakeRoller.set(0.5);
     }
 
     public void outake(){
-        intakeRoller.set(-1);
+        intakeRoller.set(-0.5);
+    }
+
+     public void stopIntake(){
+        intakeRoller.set(0);
     }
 
 }

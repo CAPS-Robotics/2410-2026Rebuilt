@@ -13,6 +13,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDrivetrainSubsystem;
 import frc.robot.subsystems.TransferSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
@@ -30,7 +31,7 @@ public class RobotContainer {
 
   
   // The robot's subsystems and commands are defined here...
-  private final SwerveDrivetrainSubsystem swerveDrivetrainSubsystem = new SwerveDrivetrainSubsystem();
+  public final SwerveDrivetrainSubsystem swerveDrivetrainSubsystem = new SwerveDrivetrainSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final TransferSubsystem transferSubsystem = new TransferSubsystem();
@@ -39,11 +40,14 @@ public class RobotContainer {
   private final RunCommand intake = new RunCommand(()-> this.intakeSubsystem.intake(), intakeSubsystem);
   private final RunCommand outake = new RunCommand(()-> this.intakeSubsystem.outake(), intakeSubsystem);
   private final RunCommand transfer = new RunCommand(()-> this.transferSubsystem.transfer(), transferSubsystem);
+  private final InstantCommand stop = new InstantCommand(()-> this.shooterSubsystem.stop(), shooterSubsystem);
+    private final InstantCommand stopIntake = new InstantCommand(()-> this.intakeSubsystem.stopIntake(), intakeSubsystem);
+
 
 
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandJoystick m_driverController =
+  public static final CommandJoystick m_driverController =
       new CommandJoystick(Constants.kDriverControllerPort);
   
   
@@ -55,7 +59,7 @@ public class RobotContainer {
     configureBindings();
     
 
-    swerveDrivetrainSubsystem.setDefaultCommand(new RunCommand(()-> this.swerveDrivetrainSubsystem.driveSwerve(this.m_driverController), swerveDrivetrainSubsystem ));
+    
   }
 
   /**
@@ -69,9 +73,10 @@ public class RobotContainer {
    */
   private void configureBindings() {
     m_driverController.button(6).onTrue(shoot);
-    m_driverController.button(2).onTrue(intake);
+    m_driverController.button(2).onTrue(stop);
     m_driverController.button(4).onTrue(outake);
-    m_driverController.button(5).onTrue(transfer);
+    m_driverController.button(5).onTrue(intake);
+    m_driverController.button(1).onTrue(stopIntake);
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     // new Trigger(m_exampleSubsystem::exampleCondition)
