@@ -4,6 +4,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -66,5 +73,21 @@ public final class Constants {
     //Chasis Length
     public static final double chasisWidth = Units.inchesToMeters(20);
     public static final double chasisLength = Units.inchesToMeters(24);
+
+
+
+
+    //Camera
+    public static final AprilTagFields kField = AprilTagFields.kDefaultField;
+    public static final String kCameraName = "NAME";
+    public static final Transform3d kRobotToCam = new Transform3d(
+        Units.inchesToMeters(10), 0, Units.inchesToMeters(10), 
+        new Rotation3d(0   , 0, 0)
+    ); 
+
+
+    //Standard Deviations
+    public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+    public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
 
 }

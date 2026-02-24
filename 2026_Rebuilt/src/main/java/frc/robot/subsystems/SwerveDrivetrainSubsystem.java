@@ -7,6 +7,8 @@ package frc.robot.subsystems;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -17,6 +19,8 @@ import edu.wpi.first.math.kinematics.Kinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -45,6 +49,7 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
     
     SwerveModuleState states[];
     SwerveModulePosition[] position = {frontLeftModule.modulePosition.copy(), frontRightModule.modulePosition.copy(), backLeftModule.modulePosition.copy(), backRightModule.modulePosition.copy()};
+    SwerveDrivePoseEstimator drivePoseEstimator;
 
 
     AHRS Navx = new AHRS(NavXComType.kMXP_SPI);
@@ -72,7 +77,7 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
     SwerveDrivePoseEstimator swerveDrivePoseEstimator; 
     
     double distanceAprilTag;
-
+   
     
 
     static ChassisSpeeds chassisSpeeds = new ChassisSpeeds(); 
@@ -81,7 +86,17 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
     
         public SwerveDrivetrainSubsystem(){   
              
+            var stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
+            var visionStdDevs = VecBuilder.fill(1, 1, 1);
+
             this.setDefaultCommand(new RunCommand(()-> this.driveSwerve(RobotContainer.m_driverController), this ));
+            drivePoseEstimator = new SwerveDrivePoseEstimator(
+                kinematics, 
+                Navx.getRotation2d(), 
+                position, 
+                initialrobotPose2d,
+                stateStdDevs,
+                visionStdDevs);
             
     
         }
@@ -135,6 +150,7 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
             // SmartDashboard.putNumber("Front Right Module Enocoder", frontRightModule.encoderValue);
             // SmartDashboard.putNumber("Back Left Module Enocoder", backLeftModule.encoderValue);
             // SmartDashboard.putNumber("Back Right Module Enocoder", backRightModule.encoderValue);
+            
     
     
     
@@ -176,7 +192,19 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
          
         }
 
+        public void addVisionMeasurements(Pose2d estimateRobotPose, double timestampSeconds, Matrix<N3,N1> visionStdDevs){
+            drivePoseEstimator.addVisionMeasurement(initialrobotPose2d, distanceAprilTag, visionStdDevs);
+        }
+
         public SwerveDriveKinematics getSwerveKinematics(){
             return this.getSwerveKinematics();
         }
+
+
+        public void periodic(){
+            
+            drivePoseEstimator.update(Navx.getRotation2d(), position);
+
+        }       
+
 }

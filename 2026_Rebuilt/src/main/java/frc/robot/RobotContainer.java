@@ -12,6 +12,7 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDrivetrainSubsystem;
 import frc.robot.subsystems.TransferSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -35,13 +36,14 @@ public class RobotContainer {
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final TransferSubsystem transferSubsystem = new TransferSubsystem();
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem(Constants.kCameraName, Constants.kField, Constants.kRobotToCam, swerveDrivetrainSubsystem::addVisionMeasurements);
 
   private final RunCommand shoot = new RunCommand(()-> this.shooterSubsystem.shoot(), shooterSubsystem);
   private final RunCommand intake = new RunCommand(()-> this.intakeSubsystem.intake(), intakeSubsystem);
   private final RunCommand outake = new RunCommand(()-> this.intakeSubsystem.outake(), intakeSubsystem);
   private final RunCommand transfer = new RunCommand(()-> this.transferSubsystem.transfer(), transferSubsystem);
   private final InstantCommand stop = new InstantCommand(()-> this.shooterSubsystem.stop(), shooterSubsystem);
-    private final InstantCommand stopIntake = new InstantCommand(()-> this.intakeSubsystem.stopIntake(), intakeSubsystem);
+  private final InstantCommand stopIntake = new InstantCommand(()-> this.intakeSubsystem.stopIntake(), intakeSubsystem);
 
 
 
@@ -58,6 +60,7 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
     
+    visionSubsystem.periodic();
 
     
   }

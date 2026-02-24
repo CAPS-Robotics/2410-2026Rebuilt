@@ -143,5 +143,9 @@ public class SwerveModule {
         Angle = Rotation2d.fromRadians((encoder.get()/1)*(Math.PI*2));
     }
 
+    public SwerveModuleState getState() {
+        return this.getState();
+    }
+
 }
 
