@@ -4,13 +4,6 @@
 
 package frc.robot;
 
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -29,10 +22,7 @@ public final class Constants {
     public static final int kFunctionsControllerPort = 1;
 
     //Intake
-    public static final int KIntakeMotor = 11;
-    public static final int KFlywheelMotor = 15;
-    public static final int KBackRollerMotor = 10;
-
+    public static final int KIntakeMotor = 10;
 
     //Drive Motors
     public static final int kFrontLeftDrive = 5;
@@ -47,10 +37,16 @@ public final class Constants {
     public static final int kBackLeftSteering  = 8;
     public static final int kBackRightSteering = 6;
 
+    //Shooter Motor
+    public static final double shoooterPowerConversion = 0.15707963267; //wheel diameter (5cm) * pi, in meters
+    public static final double shooterAngle = 42; //What's the meaning of life?
 
-
+    //Shooter Math
+    public static final double hoopHeight = 1.8288; //Later, adjust this a bit so we don't keep landing rim shots (in theory)
+    public static final double gravity = 9.81;
+    public static final double gravity_kansas = 9.806; //adjusted for KANSAS SEA LEVEL BECAUSE I AM A TRYHARD
+    
     //Encoders
-
     public static final int kFrontLeftEncoder = 1;
     public static final int kFrontRightEncoder = 0;
     public static final int kBackLeftEncoder = 2;
@@ -64,7 +60,7 @@ public final class Constants {
 
 
     //Dampners 
-    public static final double kSwerveDampner = 0.05;
+    public static final double kSwerveDampner = 0.50;
     public static final double kElevatorDampner = 0.5;
     public static final double kClimbDampner = 0.5;
     public static final double kAlgaeDampner = 0.2;
@@ -73,21 +69,5 @@ public final class Constants {
     //Chasis Length
     public static final double chasisWidth = Units.inchesToMeters(20);
     public static final double chasisLength = Units.inchesToMeters(24);
-
-
-
-
-    //Camera
-    public static final AprilTagFields kField = AprilTagFields.kDefaultField;
-    public static final String kCameraName = "NAME";
-    public static final Transform3d kRobotToCam = new Transform3d(
-        Units.inchesToMeters(10), 0, Units.inchesToMeters(10), 
-        new Rotation3d(0   , 0, 0)
-    ); 
-
-
-    //Standard Deviations
-    public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
-    public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
 
 }
