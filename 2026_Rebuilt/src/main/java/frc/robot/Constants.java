@@ -28,11 +28,22 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
     public static final int kFunctionsControllerPort = 1;
 
+
+    //Shooter Motors 
+    public static final int KFlywheelMotor_1 = 15;
+    public static final int KFlywheelMotor_2 = 16;
+    public static final int KBackRollerMotor = 10;
+    
+
     //Intake
     public static final int KIntakeMotor = 11;
-    public static final int KFlywheelMotor = 15;
-    public static final int KBackRollerMotor = 10;
+    public static final int kPivotMotor = 12;
 
+    //Transfer 
+    public static final int kTransferMotor_1 = 13;
+    public static final int kTransferMotor_2 = 14;
+
+    
 
     //Drive Motors
     public static final int kFrontLeftDrive = 5;
@@ -47,10 +58,7 @@ public final class Constants {
     public static final int kBackLeftSteering  = 8;
     public static final int kBackRightSteering = 6;
 
-
-
     //Encoders
-
     public static final int kFrontLeftEncoder = 1;
     public static final int kFrontRightEncoder = 0;
     public static final int kBackLeftEncoder = 2;
