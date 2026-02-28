@@ -4,6 +4,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -21,8 +28,22 @@ public final class Constants {
     public static final int kDriverControllerPort = 0;
     public static final int kFunctionsControllerPort = 1;
 
+
+    //Shooter Motors 
+    public static final int KFlywheelMotor_1 = 15;
+    public static final int KFlywheelMotor_2 = 16;
+    public static final int KBackRollerMotor = 10;
+    
+
     //Intake
-    public static final int KIntakeMotor = 10;
+    public static final int KIntakeMotor = 11;
+    public static final int kPivotMotor = 12;
+
+    //Transfer 
+    public static final int kTransferMotor_1 = 13;
+    public static final int kTransferMotor_2 = 14;
+
+    
 
     //Drive Motors
     public static final int kFrontLeftDrive = 5;
@@ -36,7 +57,7 @@ public final class Constants {
     public static final int kFrontRightSteering = 2;
     public static final int kBackLeftSteering  = 8;
     public static final int kBackRightSteering = 6;
-    
+
     //Encoders
     public static final int kFrontLeftEncoder = 1;
     public static final int kFrontRightEncoder = 0;
@@ -51,7 +72,7 @@ public final class Constants {
 
 
     //Dampners 
-    public static final double kSwerveDampner = 0.50;
+    public static final double kSwerveDampner = 0.05;
     public static final double kElevatorDampner = 0.5;
     public static final double kClimbDampner = 0.5;
     public static final double kAlgaeDampner = 0.2;
@@ -60,5 +81,21 @@ public final class Constants {
     //Chasis Length
     public static final double chasisWidth = Units.inchesToMeters(20);
     public static final double chasisLength = Units.inchesToMeters(24);
+
+
+
+
+    //Camera
+    public static final AprilTagFields kField = AprilTagFields.kDefaultField;
+    public static final String kCameraName = "NAME";
+    public static final Transform3d kRobotToCam = new Transform3d(
+        Units.inchesToMeters(10), 0, Units.inchesToMeters(10), 
+        new Rotation3d(0   , 0, 0)
+    ); 
+
+
+    //Standard Deviations
+    public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
+    public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
 
 }
