@@ -58,6 +58,19 @@ public final class Constants {
     public static final int kBackLeftSteering  = 8;
     public static final int kBackRightSteering = 6;
 
+<<<<<<< Updated upstream
+=======
+    //Shooter Motor
+    public static final double flywheelCircumference = 0.3191858136;
+    public static final double backwheelCircumference = 0.0797964534;
+    public static final double shooterAngle = 42; //What's the meaning of life?
+
+    //Shooter Math
+    public static final double hoopHeight = 1.8288; //Later, adjust this a bit so we don't keep landing rim shots (in theory)
+    public static final double gravity = 9.81;
+    public static final double gravity_kansas = 9.806; //adjusted for KANSAS SEA LEVEL BECAUSE I AM A TRYHARD
+    
+>>>>>>> Stashed changes
     //Encoders
     public static final int kFrontLeftEncoder = 1;
     public static final int kFrontRightEncoder = 0;
