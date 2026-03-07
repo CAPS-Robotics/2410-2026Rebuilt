@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
  * Shoots balls currently loaded in the machine.
- * @version v2.0.0
+ * @version v2.1.0
  */
 public class ShooterSubsystem extends SubsystemBase
 {
@@ -23,15 +23,16 @@ public class ShooterSubsystem extends SubsystemBase
     // Math-related constants
     private static final double FLYWHEEL_CIRCUMFERENCE = 0.3191858136;
     private static final double BACKWHEEL_CIRCUMFERENCE = 0.0797964534;
-    private static final double GRAVITY = 9.806;
-    private static final double GOAL_HEIGHT = 1.8288;
-    private static final double ANGLE = 42;
+    private static final double GRAVITY = 9.806; //adjusted for kansas sea level
+    private static final double GOAL_HEIGHT = 1.8288; //difference between shooter height and goal height in meters
+    private static final double ANGLE = 42; //what's the meaning of life?
 
     // The flywheel runs on two separate motors.
     private SparkFlex flywheel_1 = new SparkFlex(Constants.KFlywheelMotor_1, MotorType.kBrushless);
     private SparkFlex flywheel_2 = new SparkFlex(Constants.KFlywheelMotor_2, MotorType.kBrushless);
     
     private SparkFlex backRollers = new SparkFlex(Constants.KBackRollerMotor, MotorType.kBrushless);
+
     private SparkFlexConfig leadMotor = new SparkFlexConfig();
     private SparkFlexConfig flywheelFollower = new SparkFlexConfig();
     private SparkFlexConfig backRollerFollower = new SparkFlexConfig();
@@ -39,7 +40,8 @@ public class ShooterSubsystem extends SubsystemBase
     
     // private SparkMax feedRollers = new SparkMax(13, MotorType.kBrushless);
 
-    public ShooterSubsystem(){
+    public ShooterSubsystem()
+    {
 
         flywheelFollower.follow(flywheel_1, true);
         backRollerFollower.follow(backRollers, true);
@@ -49,10 +51,15 @@ public class ShooterSubsystem extends SubsystemBase
         backRollers.configure(backRollerFollower, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
     }
-    // getter land
+
+    public void periodic()
+    {
+        
+    }
+
     /**
-     * Checks if the 
-     * @return if error between target RPM and actual RPM is below 3%, return true. otherwise return false
+     * Checks if the actual RPM of the flywheel/backroller is close to the target RPM
+     * @return boolean calculated upon running this method
      */
     public boolean isReadyToFire()
     {
@@ -82,7 +89,7 @@ public class ShooterSubsystem extends SubsystemBase
      * Revs up the flywheel and backroller to fire at a set velocity.
      * @param velocity The velocity in m/s to fire the ball at. 
      * @since v2.0.0
-     * @version v2.0.0
+     * @version v2.1.0
      */
     public void rev(double velocity)
     {
@@ -102,20 +109,22 @@ public class ShooterSubsystem extends SubsystemBase
      * FIRE!!!! (make sure to rev up the flywheels first)
      * @since v2.0.0
      * @version v2.0.0
+     * @deprecated fix later
      */
     public void shoot()
     {
-        feedRollers.setReference(120,ControlType.kVelocity);
+        // feedRollers.setReference(120,ControlType.kVelocity);
     }
 
     /**
      * ok now stop shooting
      * @since v2.0.0
      * @version v2.0.0
+     * @deprecated fix later
      */
     public void stopShooting()
     {
-        feedRollers.setReference(0,ControlType.kVelocity);
+        // feedRollers.setReference(0,ControlType.kVelocity);
     }
 
     // It's so cold here in hell, where all deprecated methods go when they die 
