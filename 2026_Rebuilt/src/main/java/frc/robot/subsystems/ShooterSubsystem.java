@@ -13,20 +13,23 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
 /**
- * Shoots balls currently loaded in the machine.
- * @version v2.1.0
+ * This subsystem calculates and sets the shooter's power.
+ * @version v2.2.0
  */
 public class ShooterSubsystem extends SubsystemBase
 {
-    // logga
-    private static final Logger logger = Logger.getLogger("ShooterSubsystem");
-    // Math-related constants
+    // Measurement constants (in meters)
     private static final double FLYWHEEL_CIRCUMFERENCE = 0.3191858136;
     private static final double BACKWHEEL_CIRCUMFERENCE = 0.0797964534;
+    private static final double GOAL_HEIGHT = 1.397; //difference between shooter height and goal height in meters
+    private static final double MINIMUM_FIRING_DISTANCE = 2.5; // This is pretty arbritary but it makes sure that setDistance() doesn't just try to shoot straight at the hoop
+    private static final double MAXIMUM_FIRING_DISTANCE = 5.0; // Note: Can shoot much further, albeit not as accurately. Rough estimate based off backroller's max RPM
+    // Other math-related constants
     private static final double GRAVITY = 9.806; //adjusted for kansas sea level
-    private static final double GOAL_HEIGHT = 1.8288; //difference between shooter height and goal height in meters
     private static final double ANGLE = 42; //what's the meaning of life?
     private static final double RPM_TOLERANCE = 0.05; //5% error allowed
+    private static final double MOTOR_MAX_RPM = 6784;
+    private static final double POWER_MULT = 1/0.9; //Approx reciprocal of the % of velocity transfered to the ball from the flywheel (efficiency)
 
     // The flywheel runs on two separate motors.
     private SparkFlex flywheel_1 = new SparkFlex(Constants.KFlywheelMotor_1, MotorType.kBrushless);
@@ -36,68 +39,61 @@ public class ShooterSubsystem extends SubsystemBase
     // The backroller runs on only one motor.
     private SparkFlex backRollers = new SparkFlex(Constants.KBackRollerMotor, MotorType.kBrushless);
     private double backRollerTargetRPM;
+
     //Follower motors.
     private SparkFlexConfig leadMotor = new SparkFlexConfig();
     private SparkFlexConfig flywheelFollower = new SparkFlexConfig();
     private SparkFlexConfig backRollerFollower = new SparkFlexConfig();
 
-    
-    // private SparkMax feedRollers = new SparkMax(13, MotorType.kBrushless);
-
     public ShooterSubsystem()
     {
-
         flywheelFollower.follow(flywheel_1, true);
         backRollerFollower.follow(backRollers, true);
 
         flywheel_1.configure(leadMotor, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         flywheel_2.configure(flywheelFollower, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         backRollers.configure(backRollerFollower, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-
-
-    }
-
-    public void periodic()
-    {
-        
     }
 
     /**
-     * Checks if the actual RPM of the flywheel/backroller is close to the target RPM
+     * Checks if the actual RPM of the flywheel is close to the target RPM. Backroller is negligible
      * @return boolean calculated upon running this method
+     * @since v2.0.0
+     * @version v2.2.0
      */
     public boolean isReadyToFire()
     {
+        // Gets current velocity from encoder
         double flywheelActualRPM = flywheel_1.getEncoder().getVelocity();
-        double backRollerActualRPM = backRollers.getEncoder().getVelocity();
 
         // Checks if flywheel target RPM is within tolerance
         if(Math.abs((flywheelActualRPM-flywheelTargetRPM)/flywheelTargetRPM) > RPM_TOLERANCE)
             return false;
-        // Checks if backroller target RPM is within tolerance
-        if(Math.abs((backRollerActualRPM-backRollerTargetRPM)/backRollerTargetRPM) > RPM_TOLERANCE)
-            return false;
-        
-        // if both checks succeed, return true
         return true;
     }
 
     /**
-     * Sets the rollers to spin to make it into a goal at the target distance.
-     * @param distance The distance from the thing you're trying to shoot.
+     * Calculates velocity needed to make a goal from distance, then runs rev() method
+     * @param distance The distance from the thing you're trying to shoot. (Minimum distance: 2 meters. Maximum (accurate) distance: 6 meters)
      * @since v1.0.0
-     * @version v2.0.0
+     * @version v2.2.0
      */
     public void setDistance(double distance)
     { 
-
-        if(distance < GOAL_HEIGHT+0.5){
-            logger.info("Too close to goal to fire!! (Minimum distance is about 2.5 meters)");
+        // Checks if robot is too close to fire
+        if(distance < MINIMUM_FIRING_DISTANCE)
+        {
+            System.out.println("Too close to goal to fire!! (Minimum distance is 2.5 meters)");
             return;
         }
+        // Checks if robot is too far to fire accurately
+        if(distance < MINIMUM_FIRING_DISTANCE)
+            System.out.println("Distance exceeds 5 meters, launcher will likely undershoot (not a big problem unless you're trying to make goals)");
+        
         // Finds the velocity the ball needs to travel in order to make it in the goal. (TW: Math...)
         double velocity = Math.sqrt((GRAVITY*Math.pow(distance,2)) / (2 * Math.pow(Math.cos(Math.toRadians(ANGLE)),2) * (distance*Math.tan(Math.toRadians(ANGLE)) - GOAL_HEIGHT)));
         
+        // Sets motors to fire at calculated velocity
         rev(velocity);
     }
 
@@ -110,63 +106,35 @@ public class ShooterSubsystem extends SubsystemBase
     public void rev(double velocity)
     {
         // Converts velocity to target RPM
-        flywheelTargetRPM = (velocity/FLYWHEEL_CIRCUMFERENCE)*60;
-        backRollerTargetRPM = (velocity/BACKWHEEL_CIRCUMFERENCE)*60; // if you need to reverse it do it here
+        flywheelTargetRPM = Math.min((velocity/FLYWHEEL_CIRCUMFERENCE)*60*POWER_MULT,MOTOR_MAX_RPM);
+        backRollerTargetRPM = Math.min((velocity/BACKWHEEL_CIRCUMFERENCE)*60,MOTOR_MAX_RPM); // Note to self: if you need to reverse it do it here
         
         // Makes the flywheel motors spin at the RPM calculated 
         flywheel_1.setReference(flywheelTargetRPM,ControlType.kVelocity);
-        flywheel_2.setReference(-flywheelTargetRPM,ControlType.kVelocity);// in reverse
+        flywheel_2.setReference(-flywheelTargetRPM,ControlType.kVelocity); // This one's in reverse
+
+        // Then the backrollers (These will almost always have to fire near 100% velocity. Why??? Who designed this thing??)
+        // It's too late to put a 3:2 gear ratio on it :cry: 
+        backRollers.setReference(backRollerTargetRPM,ControlType.kVelocity);
+    }
+
+    /**
+     * Warms up the flywheel and backroller so that it takes less time for the flywheel to hit target speed.
+     * @since v2.2.0
+     * @version 2.2.0
+     */
+    public void preRev(double velocity)
+    {
+        // Sets target RPMs
+        flywheelTargetRPM = 1500;
+        backRollerTargetRPM = 6000;
+        
+        // Makes the flywheel motors spin
+        flywheel_1.setReference(flywheelTargetRPM,ControlType.kVelocity);
+        flywheel_2.setReference(-flywheelTargetRPM,ControlType.kVelocity); // This one's in reverse
 
         // Then the backrollers
         backRollers.setReference(backRollerTargetRPM,ControlType.kVelocity);
     }
 
-    /**
-     * FIRE!!!! (make sure to rev up the flywheels first)
-     * @since v2.0.0
-     * @version v2.0.0
-     * @deprecated fix later
-     */
-    public void shoot()
-    {
-        // feedRollers.setReference(120,ControlType.kVelocity);
-    }
-
-    /**
-     * ok now stop shooting
-     * @since v2.0.0
-     * @version v2.0.0
-     * @deprecated fix later
-     */
-    public void stopShooting()
-    {
-        // feedRollers.setReference(0,ControlType.kVelocity);
-    }
-
-    // It's so cold here in hell, where all deprecated methods go when they die 
-    /**
-     * Shoots at default power level of 50% voltage. Good for testing purposes
-     * @since v0.0.0
-     * @version v1.3.1
-     */
-    public void testShot()
-    {
-        flywheel.set(-0.5);
-        backRollers.set(-0.5);
-        setFeedRollers();
-    }
-
-    /**
-     * Sets feedRollers to 0 if not firing so that it doesn't get jammed (will it get jammed otherwise?? idk, probably).
-     * @since v1.0.0
-     * @version v1.0.0
-     * @deprecated
-     */
-    public void setFeedRollers()
-    {
-        if(flywheel.get() < 0.05 || backRollers.get() < 0.05)
-            feedRollers.set(0);
-        else
-           feedRollers.set(0.5); 
-    }
 }
