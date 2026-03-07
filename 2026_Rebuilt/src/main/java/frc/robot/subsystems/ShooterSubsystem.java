@@ -27,12 +27,28 @@ public class ShooterSubsystem extends SubsystemBase
     private static final double GOAL_HEIGHT = 1.8288;
     private static final double ANGLE = 42;
 
-    // Motors
-    private SparkMax flywheel = new SparkMax(0, MotorType.kBrushless); //TODO: do PID tuning and get the CAN ID's
-    private SparkMax backRollers = new SparkMax(0, MotorType.kBrushless);
-    private SparkMax feedRollers = new SparkMax(0, MotorType.kBrushless);
+    // The flywheel runs on two separate motors.
+    private SparkFlex flywheel_1 = new SparkFlex(Constants.KFlywheelMotor_1, MotorType.kBrushless);
+    private SparkFlex flywheel_2 = new SparkFlex(Constants.KFlywheelMotor_2, MotorType.kBrushless);
+    
+    private SparkFlex backRollers = new SparkFlex(Constants.KBackRollerMotor, MotorType.kBrushless);
+    private SparkFlexConfig leadMotor = new SparkFlexConfig();
+    private SparkFlexConfig flywheelFollower = new SparkFlexConfig();
+    private SparkFlexConfig backRollerFollower = new SparkFlexConfig();
 
+    
+    // private SparkMax feedRollers = new SparkMax(13, MotorType.kBrushless);
 
+    public ShooterSubsystem(){
+
+        flywheelFollower.follow(flywheel_1, true);
+        backRollerFollower.follow(backRollers, true);
+
+        flywheel_1.configure(leadMotor, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        flywheel_2.configure(flywheelFollower, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        backRollers.configure(backRollerFollower, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+
+    }
     // getter land
     /**
      * Checks if the 
@@ -40,7 +56,7 @@ public class ShooterSubsystem extends SubsystemBase
      */
     public boolean isReadyToFire()
     {
-        return true; //TODO: add an encoder and complete this method
+        return true; //TODO: get the encoders and complete this method
     }
 
     /**
@@ -71,12 +87,15 @@ public class ShooterSubsystem extends SubsystemBase
     public void rev(double velocity)
     {
         // Converts velocity to target RPM
-        double flywheelRPM = -(velocity/FLYWHEEL_CIRCUMFERENCE)*60;
-        double backwheelRPM = -(velocity/BACKWHEEL_CIRCUMFERENCE)*60;
+        double flywheelRPM = (velocity/FLYWHEEL_CIRCUMFERENCE)*60;
+        double backRollerRPM = (velocity/BACKWHEEL_CIRCUMFERENCE)*60; // if you need to reverse it do it here
         
-        // Makes the motors spin at the RPM calculated 
-        flywheel.setReference(flywheelRPM,ControlType.kVelocity);
-        backRollers.setReference(backwheelRPM,ControlType.kVelocity);
+        // Makes the flywheel motors spin at the RPM calculated 
+        flywheel_1.setReference(flywheelRPM,ControlType.kVelocity);
+        flywheel_2.setReference(-flywheelRPM,ControlType.kVelocity);// in reverse
+
+        // Then the backrollers
+        backRollers.setReference(backRollerRPM,ControlType.kVelocity);
     }
 
     /**
