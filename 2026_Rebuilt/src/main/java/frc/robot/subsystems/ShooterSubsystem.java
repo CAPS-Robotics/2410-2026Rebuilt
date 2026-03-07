@@ -26,13 +26,17 @@ public class ShooterSubsystem extends SubsystemBase
     private static final double GRAVITY = 9.806; //adjusted for kansas sea level
     private static final double GOAL_HEIGHT = 1.8288; //difference between shooter height and goal height in meters
     private static final double ANGLE = 42; //what's the meaning of life?
+    private static final double RPM_TOLERANCE = 0.05; //5% error allowed
 
     // The flywheel runs on two separate motors.
     private SparkFlex flywheel_1 = new SparkFlex(Constants.KFlywheelMotor_1, MotorType.kBrushless);
     private SparkFlex flywheel_2 = new SparkFlex(Constants.KFlywheelMotor_2, MotorType.kBrushless);
-    
-    private SparkFlex backRollers = new SparkFlex(Constants.KBackRollerMotor, MotorType.kBrushless);
+    private double flywheelTargetRPM;
 
+    // The backroller runs on only one motor.
+    private SparkFlex backRollers = new SparkFlex(Constants.KBackRollerMotor, MotorType.kBrushless);
+    private double backRollerTargetRPM;
+    //Follower motors.
     private SparkFlexConfig leadMotor = new SparkFlexConfig();
     private SparkFlexConfig flywheelFollower = new SparkFlexConfig();
     private SparkFlexConfig backRollerFollower = new SparkFlexConfig();
@@ -50,6 +54,7 @@ public class ShooterSubsystem extends SubsystemBase
         flywheel_2.configure(flywheelFollower, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
         backRollers.configure(backRollerFollower, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
+
     }
 
     public void periodic()
@@ -63,7 +68,18 @@ public class ShooterSubsystem extends SubsystemBase
      */
     public boolean isReadyToFire()
     {
-        return true; //TODO: get the encoders and complete this method
+        double flywheelActualRPM = flywheel_1.getEncoder().getVelocity();
+        double backRollerActualRPM = backRollers.getEncoder().getVelocity();
+
+        // Checks if flywheel target RPM is within tolerance
+        if(Math.abs((flywheelActualRPM-flywheelTargetRPM)/flywheelTargetRPM) > RPM_TOLERANCE)
+            return false;
+        // Checks if backroller target RPM is within tolerance
+        if(Math.abs((backRollerActualRPM-backRollerTargetRPM)/backRollerTargetRPM) > RPM_TOLERANCE)
+            return false;
+        
+        // if both checks succeed, return true
+        return true;
     }
 
     /**
@@ -94,15 +110,15 @@ public class ShooterSubsystem extends SubsystemBase
     public void rev(double velocity)
     {
         // Converts velocity to target RPM
-        double flywheelRPM = (velocity/FLYWHEEL_CIRCUMFERENCE)*60;
-        double backRollerRPM = (velocity/BACKWHEEL_CIRCUMFERENCE)*60; // if you need to reverse it do it here
+        flywheelTargetRPM = (velocity/FLYWHEEL_CIRCUMFERENCE)*60;
+        backRollerTargetRPM = (velocity/BACKWHEEL_CIRCUMFERENCE)*60; // if you need to reverse it do it here
         
         // Makes the flywheel motors spin at the RPM calculated 
-        flywheel_1.setReference(flywheelRPM,ControlType.kVelocity);
-        flywheel_2.setReference(-flywheelRPM,ControlType.kVelocity);// in reverse
+        flywheel_1.setReference(flywheelTargetRPM,ControlType.kVelocity);
+        flywheel_2.setReference(-flywheelTargetRPM,ControlType.kVelocity);// in reverse
 
         // Then the backrollers
-        backRollers.setReference(backRollerRPM,ControlType.kVelocity);
+        backRollers.setReference(backRollerTargetRPM,ControlType.kVelocity);
     }
 
     /**
