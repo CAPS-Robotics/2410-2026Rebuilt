@@ -21,7 +21,7 @@ public class ShooterSubsystem extends SubsystemBase
     // Measurement constants (in meters)
     private static final double FLYWHEEL_CIRCUMFERENCE = 0.3191858136;
     private static final double BACKWHEEL_CIRCUMFERENCE = 0.0797964534;
-    private static final double GOAL_HEIGHT = 1.397; //difference between shooter height and goal height in meters
+    private static final double GOAL_HEIGHT = 1.397; //difference between shooter height and goal height in meters 
     private static final double MINIMUM_FIRING_DISTANCE = 2.5; // This is pretty arbritary but it makes sure that setDistance() doesn't just try to shoot straight at the hoop
     private static final double MAXIMUM_FIRING_DISTANCE = 5.0; // Note: Can shoot much further, albeit not as accurately. Rough estimate based off backroller's max RPM
     // Other math-related constants
@@ -30,6 +30,7 @@ public class ShooterSubsystem extends SubsystemBase
     private static final double RPM_TOLERANCE = 0.05; //5% error allowed
     private static final double MOTOR_MAX_RPM = 6784;
     private static final double POWER_MULT = 1/0.9; //Approx reciprocal of the % of velocity transfered to the ball from the flywheel (efficiency)
+    //                          ^ This doesn't apply to the backrollers, which is weird and implicit but provides backspin to the ball
 
     // The flywheel runs on two separate motors.
     private SparkFlex flywheel_1 = new SparkFlex(Constants.KFlywheelMotor_1, MotorType.kBrushless);
