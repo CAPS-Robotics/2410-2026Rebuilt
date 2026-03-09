@@ -7,32 +7,56 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class ExampleSubsystem extends SubsystemBase {
-  /** Creates a new ExampleSubsystem. */
-  public ExampleSubsystem() {}
+/**
+ * This class raises or lowers a arm when a limit switch is pressed. 
+ */
+public class ClimbSubsystem extends SubsystemBase
+{
+  // motor
+  private static SparkMax motor = new SparkMax(23, MotorType.kBrushless);
+  // limit switch
+  private static DigitalInput limitSwitch = new DigitalInput(8);
 
   /**
-   * Example command factory method.
-   *
-   * @return a command
+   * Constructor.
    */
-  public Command exampleMethodCommand() {
-    // Inline construction of command goes here.
-    // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
-        () -> {
-          /* one-time action goes here */
-        });
+  public ClimbSubsystem()
+  {
+    //yaya!!
   }
 
   /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
+   * A method querying a boolean state of the [limiter switch] (for example, the limit switch).
    *
-   * @return value of some boolean subsystem state, such as a digital sensor.
+   * @return whether it's closed or not
    */
-  public boolean exampleCondition() {
-    // Query some boolean state, such as a digital sensor.
-    return false;
+  public boolean isActivated()
+  {
+    return limitSwitch.get();
+  }
+
+  /**
+   * Raises the thing.
+   */
+  public void raise()
+  {
+    motor.set(0.1);
+  }
+
+  /**
+   * Lowers the thing.
+   */
+  public void lower()
+  {
+    motor.set(-0.1);
+  }
+
+  /**
+   * Stops the thing.
+   */
+  public void stop()
+  {
+    motor.set(0);
   }
 
   @Override
