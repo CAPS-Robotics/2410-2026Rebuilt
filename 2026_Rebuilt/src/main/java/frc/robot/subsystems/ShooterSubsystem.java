@@ -6,6 +6,12 @@ import java.util.logging.Level;
 import frc.robot.Constants;
 
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 
@@ -33,12 +39,15 @@ public class ShooterSubsystem extends SubsystemBase
     //                          ^ This doesn't apply to the backrollers, which is weird and implicit but provides backspin to the ball
 
     // The flywheel runs on two separate motors.
-    private SparkFlex flywheel_1 = new SparkFlex(Constants.KFlywheelMotor_1, MotorType.kBrushless);
-    private SparkFlex flywheel_2 = new SparkFlex(Constants.KFlywheelMotor_2, MotorType.kBrushless);
+    private SparkFlex flywheel_1_motor = new SparkFlex(Constants.KFlywheelMotor_1, MotorType.kBrushless);
+    private SparkClosedLoopController flywheel_1 = flywheel_1_motor.getClosedLoopController();
+    private SparkFlex flywheel_2_motor = new SparkFlex(Constants.KFlywheelMotor_2, MotorType.kBrushless);
+    private SparkClosedLoopController flywheel_2 = flywheel_2_motor.getClosedLoopController();
     private double flywheelTargetRPM;
 
     // The backroller runs on only one motor.
-    private SparkFlex backRollers = new SparkFlex(Constants.KBackRollerMotor, MotorType.kBrushless);
+    private SparkFlex backRollers_motor = new SparkFlex(Constants.KBackRollerMotor, MotorType.kBrushless);
+    private SparkClosedLoopController backRollers = backRollers_motor.getClosedLoopController();
     private double backRollerTargetRPM;
 
     //Follower motors.
@@ -48,12 +57,12 @@ public class ShooterSubsystem extends SubsystemBase
 
     public ShooterSubsystem()
     {
-        flywheelFollower.follow(flywheel_1, true);
-        backRollerFollower.follow(backRollers, true);
+        flywheelFollower.follow(flywheel_1_motor, true);
+        backRollerFollower.follow(backRollers_motor, true);
 
-        flywheel_1.configure(leadMotor, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-        flywheel_2.configure(flywheelFollower, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-        backRollers.configure(backRollerFollower, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        flywheel_1_motor.configure(leadMotor, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        flywheel_2_motor.configure(flywheelFollower, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        backRollers_motor.configure(backRollerFollower, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     /**
@@ -65,7 +74,7 @@ public class ShooterSubsystem extends SubsystemBase
     public boolean isReadyToFire()
     {
         // Gets current velocity from encoder
-        double flywheelActualRPM = flywheel_1.getEncoder().getVelocity();
+        double flywheelActualRPM = flywheel_1_motor.getEncoder().getVelocity();
 
         // Checks if flywheel target RPM is within tolerance
         if(Math.abs((flywheelActualRPM-flywheelTargetRPM)/flywheelTargetRPM) > RPM_TOLERANCE)
@@ -111,12 +120,12 @@ public class ShooterSubsystem extends SubsystemBase
         backRollerTargetRPM = Math.min((velocity/BACKWHEEL_CIRCUMFERENCE)*60,MOTOR_MAX_RPM); // Note to self: if you need to reverse it do it here
         
         // Makes the flywheel motors spin at the RPM calculated 
-        flywheel_1.setReference(flywheelTargetRPM,ControlType.kVelocity);
-        flywheel_2.setReference(-flywheelTargetRPM,ControlType.kVelocity); // This one's in reverse
+        flywheel_1.setSetpoint(flywheelTargetRPM,ControlType.kVelocity);
+        flywheel_2.setSetpoint(-flywheelTargetRPM,ControlType.kVelocity); // This one's in reverse
 
         // Then the backrollers (These will almost always have to fire near 100% velocity. Why??? Who designed this thing??)
         // It's too late to put a 3:2 gear ratio on it :cry: 
-        backRollers.setReference(backRollerTargetRPM,ControlType.kVelocity);
+        backRollers.setSetpoint(backRollerTargetRPM,ControlType.kVelocity);
     }
 
     /**
@@ -131,11 +140,11 @@ public class ShooterSubsystem extends SubsystemBase
         backRollerTargetRPM = 6000;
         
         // Makes the flywheel motors spin
-        flywheel_1.setReference(flywheelTargetRPM,ControlType.kVelocity);
-        flywheel_2.setReference(-flywheelTargetRPM,ControlType.kVelocity); // This one's in reverse
+        flywheel_1.setSetpoint(flywheelTargetRPM,ControlType.kVelocity);
+        flywheel_2.setSetpoint(-flywheelTargetRPM,ControlType.kVelocity); // This one's in reverse
 
         // Then the backrollers
-        backRollers.setReference(backRollerTargetRPM,ControlType.kVelocity);
+        backRollers.setSetpoint(backRollerTargetRPM,ControlType.kVelocity);
     }
 
 }

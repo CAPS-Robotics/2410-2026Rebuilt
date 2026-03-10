@@ -38,7 +38,7 @@ public class RobotContainer {
   private final TransferSubsystem transferSubsystem = new TransferSubsystem();
   private final VisionSubsystem visionSubsystem = new VisionSubsystem(Constants.kCameraName, Constants.kField, Constants.kRobotToCam, swerveDrivetrainSubsystem::addVisionMeasurements);
 
-  private final RunCommand shoot = new RunCommand(()-> this.shooterSubsystem.shoot(), shooterSubsystem);
+  private final RunCommand shoot = new RunCommand(()-> this.shooterSubsystem.rev(), shooterSubsystem);
   private final RunCommand intake = new RunCommand(()-> this.intakeSubsystem.intake(), intakeSubsystem);
   private final RunCommand outake = new RunCommand(()-> this.intakeSubsystem.outake(), intakeSubsystem);
   private final RunCommand transfer = new RunCommand(()-> this.transferSubsystem.transfer(), transferSubsystem);
