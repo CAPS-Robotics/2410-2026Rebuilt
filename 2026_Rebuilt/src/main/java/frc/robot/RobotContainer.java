@@ -9,7 +9,6 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDrivetrainSubsystem;
 import frc.robot.subsystems.TransferSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
@@ -33,16 +32,13 @@ public class RobotContainer {
   
   // The robot's subsystems and commands are defined here...
   public final SwerveDrivetrainSubsystem swerveDrivetrainSubsystem = new SwerveDrivetrainSubsystem();
-  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final TransferSubsystem transferSubsystem = new TransferSubsystem();
   private final VisionSubsystem visionSubsystem = new VisionSubsystem(Constants.kCameraName, Constants.kField, Constants.kRobotToCam, swerveDrivetrainSubsystem::addVisionMeasurements);
 
-  private final RunCommand shoot = new RunCommand(()-> this.shooterSubsystem.shoot(), shooterSubsystem);
   private final RunCommand intake = new RunCommand(()-> this.intakeSubsystem.intake(), intakeSubsystem);
   private final RunCommand outake = new RunCommand(()-> this.intakeSubsystem.outake(), intakeSubsystem);
   private final RunCommand transfer = new RunCommand(()-> this.transferSubsystem.transfer(), transferSubsystem);
-  private final InstantCommand stop = new InstantCommand(()-> this.shooterSubsystem.stop(), shooterSubsystem);
   private final InstantCommand stopIntake = new InstantCommand(()-> this.intakeSubsystem.stopIntake(), intakeSubsystem);
 
 
@@ -75,8 +71,6 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    m_driverController.button(6).onTrue(shoot);
-    m_driverController.button(2).onTrue(stop);
     m_driverController.button(4).onTrue(outake);
     m_driverController.button(5).onTrue(intake);
     m_driverController.button(1).onTrue(stopIntake);
