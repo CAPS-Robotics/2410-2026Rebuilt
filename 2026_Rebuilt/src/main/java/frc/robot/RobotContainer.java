@@ -38,12 +38,14 @@ public class RobotContainer {
   private final TransferSubsystem transferSubsystem = new TransferSubsystem();
   private final VisionSubsystem visionSubsystem = new VisionSubsystem(Constants.kCameraName, Constants.kField, Constants.kRobotToCam, swerveDrivetrainSubsystem::addVisionMeasurements);
 
-  private final RunCommand shoot = new RunCommand(()-> this.shooterSubsystem.rev(), shooterSubsystem);
   private final RunCommand intake = new RunCommand(()-> this.intakeSubsystem.intake(), intakeSubsystem);
   private final RunCommand outake = new RunCommand(()-> this.intakeSubsystem.outake(), intakeSubsystem);
   private final RunCommand transfer = new RunCommand(()-> this.transferSubsystem.transfer(), transferSubsystem);
-  private final InstantCommand stop = new InstantCommand(()-> this.shooterSubsystem.stop(), shooterSubsystem);
+  private final InstantCommand stop = new InstantCommand(()-> this.shooterSubsystem.rev(0), shooterSubsystem);
   private final InstantCommand stopIntake = new InstantCommand(()-> this.intakeSubsystem.stopIntake(), intakeSubsystem);
+  private final Command setDistance(double distance) {
+    return new RunCommand(() -> this.shooterSubsystem.setDistance(distance));
+  }
 
 
 
@@ -75,7 +77,8 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    m_driverController.button(6).onTrue(shoot);
+    //TODO: Calculate distance from goal, then plug it in as a parameter to this method.
+    m_driverController.button(6).onTrue(setDistance(4));//PLACEHOLDER VALUE.
     m_driverController.button(2).onTrue(stop);
     m_driverController.button(4).onTrue(outake);
     m_driverController.button(5).onTrue(intake);
