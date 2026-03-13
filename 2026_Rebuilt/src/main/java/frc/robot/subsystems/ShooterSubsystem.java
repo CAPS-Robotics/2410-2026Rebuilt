@@ -1,11 +1,7 @@
 package frc.robot.subsystems;
 
-import java.util.logging.Logger;
-import java.util.logging.Level;
-
 import frc.robot.Constants;
 
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;

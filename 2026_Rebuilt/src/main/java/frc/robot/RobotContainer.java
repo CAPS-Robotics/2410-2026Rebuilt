@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import frc.robot.Constants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -78,7 +77,7 @@ public class RobotContainer {
    */
   private void configureBindings() {
     //TODO: Calculate distance from goal, then plug it in as a parameter to this method.
-    m_driverController.button(6).onTrue(setDistance(4));//PLACEHOLDER VALUE.
+    m_driverController.button(6).onTrue(setDistance(4));//PLACEHOLDER VALUE
     m_driverController.button(2).onTrue(stop);
     m_driverController.button(4).onTrue(outake);
     m_driverController.button(5).onTrue(intake);
