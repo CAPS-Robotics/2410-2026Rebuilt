@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.Constants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
+import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.SwerveDrivetrainSubsystem;
@@ -35,14 +36,16 @@ public class RobotContainer {
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final TransferSubsystem transferSubsystem = new TransferSubsystem();
   private final VisionSubsystem visionSubsystem = new VisionSubsystem(Constants.kCameraName, Constants.kField, Constants.kRobotToCam, swerveDrivetrainSubsystem::addVisionMeasurements);
+  private final ClimbSubsystem climbSubsystem = new ClimbSubsystem();
 
   private final RunCommand intake = new RunCommand(()-> this.intakeSubsystem.intake(), intakeSubsystem);
   private final RunCommand outake = new RunCommand(()-> this.intakeSubsystem.outake(), intakeSubsystem);
   private final RunCommand transfer = new RunCommand(()-> this.transferSubsystem.transfer(), transferSubsystem);
   private final InstantCommand stopIntake = new InstantCommand(()-> this.intakeSubsystem.stopIntake(), intakeSubsystem);
 
-
-
+  private final RunCommand raiseArm = new RunCommand(()-> this.climbSubsystem.raise(), climbSubsystem);
+  private final RunCommand lowerArm = new RunCommand(()-> this.climbSubsystem.lower(), climbSubsystem);
+  private final RunCommand stopArm = new RunCommand(()-> this.climbSubsystem.stop(), climbSubsystem);
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   public static final CommandJoystick m_driverController =
@@ -71,9 +74,11 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    m_driverController.button(4).onTrue(outake);
-    m_driverController.button(5).onTrue(intake);
-    m_driverController.button(1).onTrue(stopIntake);
+    climbSubsystem.setDefaultCommand(new RunCommand(() -> climbSubsystem.stop(), climbSubsystem));
+
+    m_driverController.button(1).whileTrue(raiseArm).onFalse(stopArm);
+    m_driverController.button(4).whileTrue(lowerArm).onFalse(stopArm);
+    m_driverController.button(2).onTrue(stopArm);
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     // new Trigger(m_exampleSubsystem::exampleCondition)

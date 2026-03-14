@@ -8,7 +8,10 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Relay;
+import edu.wpi.first.wpilibj.Relay.Direction;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 /**
@@ -17,9 +20,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ClimbSubsystem extends SubsystemBase
 {
   // motor
-  private static SparkMax motor = new SparkMax(23, MotorType.kBrushless);
+  private static SparkMax motor = new SparkMax(54, MotorType.kBrushless);
   // limit switch
   private static DigitalInput limitSwitch = new DigitalInput(8);
+  private static Relay ratchetRelay = new Relay(0);
 
   /**
    * Constructor.
@@ -44,7 +48,8 @@ public class ClimbSubsystem extends SubsystemBase
    */
   public void raise()
   {
-    motor.set(0.1);
+    ratchetRelay.setDirection(Direction.kForward);
+    motor.set(0.2);
   }
 
   /**
@@ -52,7 +57,8 @@ public class ClimbSubsystem extends SubsystemBase
    */
   public void lower()
   {
-    motor.set(-0.1);
+    ratchetRelay.setDirection(Direction.kReverse);
+    motor.set(-0.2);
   }
 
   /**
