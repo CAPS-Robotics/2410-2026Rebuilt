@@ -10,7 +10,6 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 
@@ -39,17 +38,20 @@ public class ShooterSubsystem extends SubsystemBase
     private SparkClosedLoopController flywheel_1 = flywheel_1_motor.getClosedLoopController();
     private SparkFlex flywheel_2_motor = new SparkFlex(Constants.KFlywheelMotor_2, MotorType.kBrushless);
     private SparkClosedLoopController flywheel_2 = flywheel_2_motor.getClosedLoopController();
+    //TODO: do PID tuning
     private double flywheelTargetRPM;
 
     // The backroller runs on only one motor.
     private SparkFlex backRollers_motor = new SparkFlex(Constants.KBackRollerMotor, MotorType.kBrushless);
     private SparkClosedLoopController backRollers = backRollers_motor.getClosedLoopController();
     private double backRollerTargetRPM;
+    // TODO: do PID tuning
 
     //Follower motors.
     private SparkFlexConfig leadMotor = new SparkFlexConfig();
     private SparkFlexConfig flywheelFollower = new SparkFlexConfig();
     private SparkFlexConfig backRollerFollower = new SparkFlexConfig();
+    // do these need to be PID tuned??
 
     public ShooterSubsystem()
     {
@@ -62,8 +64,8 @@ public class ShooterSubsystem extends SubsystemBase
     }
 
     /**
-     * Checks if the actual RPM of the flywheel is close to the target RPM. Backroller is negligible
-     * @return boolean calculated upon running this method
+     * Checks if the actual RPM of the flywheel is close to the target RPM. (Backroller is negligible)
+     * @return Whether the flywheel is ready to fire at full speed, calculated upon running this method
      * @since v2.0.0
      * @version v2.2.0
      */
@@ -93,7 +95,7 @@ public class ShooterSubsystem extends SubsystemBase
             return;
         }
         // Checks if robot is too far to fire accurately
-        if(distance < MINIMUM_FIRING_DISTANCE)
+        if(distance > MAXIMUM_FIRING_DISTANCE)
             System.out.println("Distance exceeds 5 meters, launcher will likely undershoot (not a big problem unless you're trying to make goals)");
         
         // Finds the velocity the ball needs to travel in order to make it in the goal. (TW: Math...)

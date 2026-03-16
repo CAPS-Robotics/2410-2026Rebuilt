@@ -11,6 +11,7 @@ import com.revrobotics.spark.config.ClosedLoopConfig;
 import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
