@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import java.util.Optional;
+import java.util.Vector;
 
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
@@ -20,12 +21,15 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+
+import java.lang.annotation.Target;
 import java.util.List;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
@@ -38,6 +42,8 @@ public class VisionSubsystem extends SubsystemBase {
   public final PhotonPoseEstimator visionEstimator;
   private Matrix<N3, N1> curStdDevs;
   private final EstimateConsumer estConsumer;
+  private PhotonTrackedTarget HubTarget;
+  public static double distanceToAprilTag;
   
 
 
@@ -47,9 +53,6 @@ public class VisionSubsystem extends SubsystemBase {
     AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(tagLayout); 
     visionEstimator = new PhotonPoseEstimator(fieldLayout, CamtoRobot);
     camera = new PhotonCamera(cameraName);
-
-    
-
   }
 
   
@@ -64,7 +67,32 @@ public class VisionSubsystem extends SubsystemBase {
             }
             updateEstimationStdDevs(visionEst, result.getTargets());
 
-  }
+            for(var id : result.getTargets()){
+                if(id.getFiducialId() == 9){
+                    HubTarget = id;
+                    distanceToAprilTag = this.distanceToAprilTag(HubTarget);
+                    continue;
+
+                }else if (id.getFiducialId() == 10 ){
+                    HubTarget = id;
+                    distanceToAprilTag = this.distanceToAprilTag(HubTarget);
+                    continue;
+                
+                }else if (id.getFiducialId() == 21){
+                    HubTarget = id;
+                    distanceToAprilTag = this.distanceToAprilTag(HubTarget);
+                    continue;
+
+
+                }else if(id.getFiducialId() == 22){
+                    HubTarget = id;
+                    distanceToAprilTag = this.distanceToAprilTag(HubTarget);
+                    continue;
+
+                }
+            }
+
+        }
 
   visionEst.ifPresent(
                     est -> {
@@ -123,6 +151,16 @@ public Matrix<N3, N1> getEstimationStdDevs(){
   return curStdDevs;
 }
 
+public double distanceToAprilTag(PhotonTrackedTarget apriltag){
+    PhotonTrackedTarget target = apriltag;
+    Transform3d vector = target.getBestCameraToTarget();
+    double x_component_distance = vector.getMeasureX().abs(Units.Meters);
+    double y_component_distance = vector.getMeasureY().abs(Units.Meters);
+    double distance = Math.sqrt(Math.pow(x_component_distance, 2) + Math.pow(y_component_distance, 2));
+    return distance;
+
+
+}
 
 @FunctionalInterface
 public static interface EstimateConsumer {

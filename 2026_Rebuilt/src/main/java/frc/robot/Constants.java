@@ -31,13 +31,13 @@ public final class Constants {
 
     //Shooter Motors 
     public static final int KFlywheelMotor_1 = 15;
-    public static final int KFlywheelMotor_2 = 16;
+    public static final int KFlywheelMotor_2 = 20;
     public static final int KBackRollerMotor = 10;
     
 
     //Intake
-    public static final int KIntakeMotor = 11;
-    public static final int kPivotMotor = 12;
+    public static final int KIntakeMotor = 12;
+    public static final int kPivotMotor = 11;
 
     //Transfer 
     public static final int kTransferMotor_1 = 13;

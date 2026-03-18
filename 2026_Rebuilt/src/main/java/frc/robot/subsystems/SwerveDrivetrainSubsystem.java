@@ -44,7 +44,7 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
     SwerveModule frontRightModule = new SwerveModule(Constants.kFrontRightDrive, Constants.kFrontRightSteering, Constants.kFrontRightEncoder, Constants.kFrontRightEncoderOffset, true, false);
     SwerveModule frontLeftModule = new SwerveModule(Constants.kFrontLeftDrive, Constants.kFrontLeftSteering,Constants.kFrontLeftEncoder, Constants.kFrontLeftEncoderOffset, false, false);
     SwerveModule backRightModule = new SwerveModule(Constants.kBackRightDrive, Constants.kBackRightSteering,Constants.kBackRightEncoder, Constants.kBackRightEncoderOffset, false, false);
-    SwerveModule backLeftModule = new SwerveModule(Constants.kBackLeftDrive, Constants.kBackLeftSteering, Constants.kBackLeftEncoder, Constants.kBackLeftEncoderOffset, true, true);
+    SwerveModule backLeftModule = new SwerveModule(Constants.kBackLeftDrive, Constants.kBackLeftSteering, Constants.kBackLeftEncoder, Constants.kBackLeftEncoderOffset, false, true);
 
     
     SwerveModuleState states[];
@@ -90,6 +90,7 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
             var visionStdDevs = VecBuilder.fill(1, 1, 1);
 
             this.setDefaultCommand(new RunCommand(()-> this.driveSwerve(RobotContainer.m_driverController), this ));
+           
             drivePoseEstimator = new SwerveDrivePoseEstimator(
                 kinematics, 
                 Navx.getRotation2d(), 
@@ -126,10 +127,11 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
     
        
     
-            System.out.println("Velocity X: " + velocityX);
-            System.out.println("Velocity Y: "+ velocityY);
-            System.out.println("Omega: "+omega);
-            System.out.println("FUSEDHEADING"+Navx.getFusedHeading()+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            // System.out.println("Velocity X: " + velocityX);
+            // System.out.println("Velocity Y: "+ velocityY);
+            // System.out.println("Omega: "+omega);
+            // System.out.println("FUSEDHEADING"+Navx.getFusedHeading()+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            // System.out.println(backLeftModule.endpoint + "!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
     
             chassisSpeeds = new ChassisSpeeds();
@@ -203,7 +205,7 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
 
         public void periodic(){
             
-            drivePoseEstimator.update(Navx.getRotation2d(), position);
+            // drivePoseEstimator.update(Navx.getRotation2d(), position);
 
         }       
 

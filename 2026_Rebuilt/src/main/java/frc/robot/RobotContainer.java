@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import frc.robot.Constants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
@@ -38,12 +37,21 @@ public class RobotContainer {
   private final TransferSubsystem transferSubsystem = new TransferSubsystem();
   private final VisionSubsystem visionSubsystem = new VisionSubsystem(Constants.kCameraName, Constants.kField, Constants.kRobotToCam, swerveDrivetrainSubsystem::addVisionMeasurements);
 
-  private final RunCommand shoot = new RunCommand(()-> this.shooterSubsystem.shoot(), shooterSubsystem);
   private final RunCommand intake = new RunCommand(()-> this.intakeSubsystem.intake(), intakeSubsystem);
   private final RunCommand outake = new RunCommand(()-> this.intakeSubsystem.outake(), intakeSubsystem);
+  private final RunCommand extendIntake = new RunCommand(()-> this.intakeSubsystem.extendIntake(), intakeSubsystem);
+  private final RunCommand retractIntake = new RunCommand(()-> this.intakeSubsystem.retract(), intakeSubsystem);
   private final RunCommand transfer = new RunCommand(()-> this.transferSubsystem.transfer(), transferSubsystem);
-  private final InstantCommand stop = new InstantCommand(()-> this.shooterSubsystem.stop(), shooterSubsystem);
+  private final RunCommand reverseTransfer = new RunCommand(()-> this.transferSubsystem.outakeTransfer(), transferSubsystem);
+  // private final InstantCommand stop = new InstantCommand(()-> this.shooterSubsystem.rev(0), shooterSubsystem);
   private final InstantCommand stopIntake = new InstantCommand(()-> this.intakeSubsystem.stopIntake(), intakeSubsystem);
+  // private final RunCommand shoot = new RunCommand(()-> {this.shooterSubsystem.setDistance(VisionSubsystem.distanceToAprilTag); this.transferSubsystem.transfer();}, shooterSubsystem, intakeSubsystem );
+  private final RunCommand IdleShooter = new RunCommand(()-> this.shooterSubsystem.idleFlywheel(), shooterSubsystem);
+  // private final RunCommand shoot = new RunCommand(()-> this.shooterSubsystem.shoot(), shooterSubsystem);
+
+  // private final Command setDistance(double distance) {
+  //   return new RunCommand(() -> this.shooterSubsystem.setDistance(distance));
+  // }
 
 
 
@@ -68,18 +76,23 @@ public class RobotContainer {
   /**
    * Use this method to define your trigger->command mappings. Triggers can be created via the
    * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-   * predicate, or via the named factories in {@link
+   * predicate, or via the named factories in {@link 
    * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
    * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
   private void configureBindings() {
-    m_driverController.button(6).onTrue(shoot);
-    m_driverController.button(2).onTrue(stop);
-    m_driverController.button(4).onTrue(outake);
-    m_driverController.button(5).onTrue(intake);
+
+    // m_driverController.button(2).onTrue(stop);
+    m_driverController.button(3).onTrue(outake);
+    m_driverController.button(2).onTrue(intake);
     m_driverController.button(1).onTrue(stopIntake);
+    m_driverController.button(5).onTrue(extendIntake);
+    m_driverController.button(6).onTrue(retractIntake);
+    m_driverController.button(7).onTrue(transfer);
+    m_driverController.button(8).onTrue(reverseTransfer);
+    m_driverController.button(9).onTrue(IdleShooter);
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     // new Trigger(m_exampleSubsystem::exampleCondition)

@@ -14,24 +14,19 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 public class TransferSubsystem extends SubsystemBase{
 
 
-    private SparkMax transferLeadMotor = new SparkMax(Constants.kTransferMotor_1, MotorType.kBrushless);
-    private SparkMax transferFollowerMotor = new SparkMax(Constants.KFlywheelMotor_2, MotorType.kBrushless);
-    private SparkFlexConfig transferLead = new SparkFlexConfig();
-    private SparkFlexConfig transferFollower = new SparkFlexConfig();
+    private SparkMax transferLeadMotor = new SparkMax(23, MotorType.kBrushless);
+    
     
     public TransferSubsystem(){
         
-        transferFollower.follow(transferLeadMotor, true);
-
-        transferLeadMotor.configure(transferLead, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-        transferFollowerMotor.configure(transferFollower, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+       
 
     }
 
   
     public void transfer(){
 
-        transferLeadMotor.set(0.5);
+        transferLeadMotor.set(1);
 
     }
 
@@ -43,7 +38,7 @@ public class TransferSubsystem extends SubsystemBase{
 
     public void outakeTransfer(){
 
-        transferLeadMotor.set(-0.5);
+        transferLeadMotor.set(-1);
 
     }
 
