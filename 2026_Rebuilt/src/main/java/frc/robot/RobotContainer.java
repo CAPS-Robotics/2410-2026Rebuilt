@@ -42,10 +42,10 @@ public class RobotContainer {
   private final RunCommand extendIntake = new RunCommand(()-> this.intakeSubsystem.extendIntake(), intakeSubsystem);
   private final RunCommand retractIntake = new RunCommand(()-> this.intakeSubsystem.retract(), intakeSubsystem);
   private final RunCommand transfer = new RunCommand(()-> this.transferSubsystem.transfer(), transferSubsystem);
-  private final RunCommand reverseTransfer = new RunCommand(()-> this.transferSubsystem.outakeTransfer(), transferSubsystem);
+  private final RunCommand unstick = new RunCommand(()-> this.shooterSubsystem.unstick(), shooterSubsystem);
   // private final InstantCommand stop = new InstantCommand(()-> this.shooterSubsystem.rev(0), shooterSubsystem);
   private final InstantCommand stopIntake = new InstantCommand(()-> this.intakeSubsystem.stopIntake(), intakeSubsystem);
-  // private final RunCommand shoot = new RunCommand(()-> {this.shooterSubsystem.setDistance(VisionSubsystem.distanceToAprilTag); this.transferSubsystem.transfer();}, shooterSubsystem, intakeSubsystem );
+  private final RunCommand shoot = new RunCommand(()-> this.shooterSubsystem.setDistance(VisionSubsystem.distanceToAprilTag), shooterSubsystem);
   private final RunCommand IdleShooter = new RunCommand(()-> this.shooterSubsystem.idleFlywheel(), shooterSubsystem);
   // private final RunCommand shoot = new RunCommand(()-> this.shooterSubsystem.shoot(), shooterSubsystem);
 
@@ -85,14 +85,15 @@ public class RobotContainer {
   private void configureBindings() {
 
     // m_driverController.button(2).onTrue(stop);
-    m_driverController.button(3).onTrue(outake);
-    m_driverController.button(2).onTrue(intake);
-    m_driverController.button(1).onTrue(stopIntake);
+    m_driverController.button(1).onTrue(outake);
+    m_driverController.button(3).onTrue(intake);
+    m_driverController.button(2).onTrue(stopIntake);
     m_driverController.button(5).onTrue(extendIntake);
     m_driverController.button(6).onTrue(retractIntake);
     m_driverController.button(7).onTrue(transfer);
-    m_driverController.button(8).onTrue(reverseTransfer);
-    m_driverController.button(9).onTrue(IdleShooter);
+    m_driverController.button(8).whileTrue(shoot);
+    m_driverController.button(8).onFalse(IdleShooter);
+    m_driverController.button(4).onTrue(unstick);
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     // new Trigger(m_exampleSubsystem::exampleCondition)

@@ -130,7 +130,7 @@ public class SwerveModule {
  
         //Set Steering Speed and Driving Speed
         steeringMotor.set(steeringModifier*pidSpeed);
-        driveMotor.set(driveModifier*moduleState.speedMetersPerSecond);
+        driveMotor.set(driveModifier*moduleState.speedMetersPerSecond*0.5);
 
        
         

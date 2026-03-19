@@ -8,8 +8,10 @@ import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -25,8 +27,8 @@ public class ShooterSubsystem extends SubsystemBase
     // Measurement constants (in meters)
     private static final double FLYWHEEL_CIRCUMFERENCE = 0.3191858136;
     private static final double BACKWHEEL_CIRCUMFERENCE = 0.0797964534;
-    private static final double GOAL_HEIGHT = 1.397; //difference between shooter height and goal height in meters 
-    private static final double MINIMUM_FIRING_DISTANCE = 2.5; // This is pretty arbritary but it makes sure that setDistance() doesn't just try to shoot straight at the hoop
+    private static final double GOAL_HEIGHT = 1.397;  
+    private static final double MINIMUM_FIRING_DISTANCE = 2.5; 
     private static final double MAXIMUM_FIRING_DISTANCE = 5.0; // Note: Can shoot much further, albeit not as accurately. Rough estimate based off backroller's max RPM
     // Other math-related constants
     private static final double GRAVITY = 9.806; //adjusted for kansas sea level
@@ -36,40 +38,47 @@ public class ShooterSubsystem extends SubsystemBase
     private static final double POWER_MULT = 1/0.9; //Approx reciprocal of the % of velocity transfered to the ball from the flywheel (efficiency)
     //                          ^ This doesn't apply to the backrollers, which is weird and implicit but provides backspin to the ball
     private static final int flywheelIdleRPM  = 500;
+
+
+
     
     // Lead Flywheel Motor
     private SparkFlex flywheel_1_motor = new SparkFlex(22, MotorType.kBrushless);
     private SparkFlexConfig leadMotor = new SparkFlexConfig();  
-    private SparkClosedLoopController flywheel_1 = flywheel_1_motor.getClosedLoopController();
+    // private SparkClosedLoopController flywheel_1 = flywheel_1_motor.getClosedLoopController();
 
     //Follower Flywheel Motor
-    private SparkFlex flywheel_2_motor = new SparkFlex(Constants.KFlywheelMotor_2, MotorType.kBrushless);
+    private SparkFlex flywheel_2_motor = new SparkFlex(10, MotorType.kBrushless);
     private SparkFlexConfig flywheelFollower = new SparkFlexConfig();
     // private SparkClosedLoopController flywheel_2 = flywheel_2_motor.getClosedLoopController();
     private double flywheelTargetRPM;
+    private double pidValue;
 
     // feederRoller BackRoller Motor
-    private SparkFlex feederRollerMotor = new SparkFlex(34, MotorType.kBrushless);
+    private SparkMax feederRollerMotor = new SparkMax(62, MotorType.kBrushless);
     // private SparkClosedLoopController backRollers = backRollers_motor.getClosedLoopController();
-    private SparkFlexConfig feederRollerFollower = new SparkFlexConfig();   
+
     
     //BackRoller
     private SparkFlex backRoller = new SparkFlex(24, MotorType.kBrushless);
     // private SparkClosedLoopController backRollers = backRollers_motor.getClosedLoopController();
     private SparkFlexConfig backRollerFollower = new SparkFlexConfig();
+
+    //pid
+    PIDController velocityPID = new PIDController(5, 0, 0);
     
 
         public ShooterSubsystem()
         {
-            flywheelFollower.follow(flywheel_1_motor, true);
-            feederRollerFollower.follow(feederRollerMotor, true);
+            flywheelFollower.follow(22, true);
             backRollerFollower.follow(flywheel_1_motor, true);
+            flywheel_1_motor.setInverted(true);
     
-            flywheel_1_motor.configure(leadMotor, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-            flywheel_2_motor.configure(flywheelFollower, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-            feederRollerMotor.configure(feederRollerFollower, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-            feederRollerMotor.set(10);
-    
+            // flywheel_1_motor.configure(leadMotor, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+            flywheel_2_motor.configure(flywheelFollower, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+            backRoller.configure(backRollerFollower, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+            
+        
     
         }
     
@@ -80,10 +89,6 @@ public class ShooterSubsystem extends SubsystemBase
          * @version v2.2.0
          */
 
-
-        public void shoot(){
-            flywheel_1.setSetpoint(1000, ControlType.kVelocity);
-        }
 
         public boolean isReadyToFire()
         {
@@ -104,11 +109,12 @@ public class ShooterSubsystem extends SubsystemBase
          */
         public void setDistance(double distance)
         { 
+            
             // Checks if robot is too close to fire
             if(distance < MINIMUM_FIRING_DISTANCE)
             {
                 System.out.println("Too close to goal to fire!! (Minimum distance is 2.5 meters)");
-                return;
+                
             }
             // Checks if robot is too far to fire accurately
             if(distance > MAXIMUM_FIRING_DISTANCE)
@@ -116,10 +122,11 @@ public class ShooterSubsystem extends SubsystemBase
             
             // Finds the velocity the ball needs to travel in order to make it in the goal. (TW: Math...)
             double velocity = Math.sqrt((GRAVITY*Math.pow(distance,2)) / (2 * Math.pow(Math.cos(Math.toRadians(ANGLE)),2) * (distance*Math.tan(Math.toRadians(ANGLE)) - GOAL_HEIGHT)));
+            rev(velocity);
+
             
             // Sets motors to fire at calculated velocity
             if (isReadyToFire()){
-                rev(velocity);
             }
             
         }
@@ -133,11 +140,16 @@ public class ShooterSubsystem extends SubsystemBase
         public void rev(double velocity)
         {
             // Converts velocity to target RPM
-            flywheelTargetRPM = Math.min((velocity/FLYWHEEL_CIRCUMFERENCE)*60*POWER_MULT,MOTOR_MAX_RPM);
+            flywheelTargetRPM = Math.min((100/FLYWHEEL_CIRCUMFERENCE)*60*POWER_MULT,MOTOR_MAX_RPM);
             // backRollerTargetRPM = Math.min((velocity/BACKWHEEL_CIRCUMFERENCE)*60,MOTOR_MAX_RPM); // Note to self: if you need to reverse it do it here
             
             // Makes the flywheel motors spin at the RPM calculated 
-            flywheel_1.setSetpoint(flywheelTargetRPM,ControlType.kVelocity);
+            pidValue = velocityPID.calculate(flywheel_1_motor.getEncoder().getVelocity(), 100);
+            flywheel_1_motor.set(0.65);
+            // feederRollerMotor.set(-0.75);
+            // backRoller.set(0.25);
+            
+            System.out.println("PID VALUE"+ -pidValue);
     
             // flywheel_2.setSetpoint(-flywheelTargetRPM,ControlType.kVelocity); // This one's in reverse
     
@@ -155,9 +167,17 @@ public class ShooterSubsystem extends SubsystemBase
         public void idleFlywheel()
         {
             //Sets Idle Speed
-            flywheel_1_motor.set(-100);
-            feederRollerMotor.set(100);
-            backRoller.set(100);
+            flywheel_1_motor.set(0.3);
+            feederRollerMotor.set(0);
+            // backRoller.set(100);
+            // flywheel_1.setSetpoint(100, ControlType.kVelocity);
+        }
+        public void unstick()
+        {
+            //Sets Idle Speed
+            // flywheel_1_motor.set(-.3);
+            feederRollerMotor.set(-0.75);
+            // backRoller.set(100);
             // flywheel_1.setSetpoint(100, ControlType.kVelocity);
         }
 

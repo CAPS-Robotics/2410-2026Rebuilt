@@ -59,7 +59,8 @@ public class IntakeSubsystem extends SubsystemBase{
     }
 
     public void outake(){
-        roller.set(0.5);
+        roller.set(0.5
+        );
         System.out.println("OUTAKE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
     }
