@@ -4,11 +4,20 @@
 
 package frc.robot;
 
-import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.SwerveDrivetrainSubsystem;
+import frc.robot.subsystems.TransferSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
+import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -19,17 +28,42 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
+
+  
   // The robot's subsystems and commands are defined here...
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
+  public final SwerveDrivetrainSubsystem swerveDrivetrainSubsystem = new SwerveDrivetrainSubsystem();
+  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  private final TransferSubsystem transferSubsystem = new TransferSubsystem();
+  private final VisionSubsystem visionSubsystem = new VisionSubsystem(Constants.kCameraName, Constants.kField, Constants.kRobotToCam, swerveDrivetrainSubsystem::addVisionMeasurements);
+
+  private final RunCommand intake = new RunCommand(()-> this.intakeSubsystem.intake(), intakeSubsystem);
+  private final RunCommand outake = new RunCommand(()-> this.intakeSubsystem.outake(), intakeSubsystem);
+  private final RunCommand transfer = new RunCommand(()-> this.transferSubsystem.transfer(), transferSubsystem);
+  private final InstantCommand stop = new InstantCommand(()-> this.shooterSubsystem.rev(0), shooterSubsystem);
+  private final InstantCommand stopIntake = new InstantCommand(()-> this.intakeSubsystem.stopIntake(), intakeSubsystem);
+  private final Command setDistance(double distance) {
+    return new RunCommand(() -> this.shooterSubsystem.setDistance(distance));
+  }
+
+
+
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  public static final CommandJoystick m_driverController =
+      new CommandJoystick(Constants.kDriverControllerPort);
+  
+  
+  
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+    
+    visionSubsystem.periodic();
+
+    
   }
 
   /**
@@ -42,13 +76,21 @@ public class RobotContainer {
    * joysticks}.
    */
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .onTrue(new ExampleCommand(m_exampleSubsystem));
+    //TODO: Calculate distance from goal, then plug it in as a parameter to this method.
+    m_driverController.button(6).onTrue(setDistance(4));//PLACEHOLDER VALUE
+    m_driverController.button(2).onTrue(stop);
+    m_driverController.button(4).onTrue(outake);
+    m_driverController.button(5).onTrue(intake);
+    m_driverController.button(1).onTrue(stopIntake);
 
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
+    // new Trigger(m_exampleSubsystem::exampleCondition)
+    //     .onTrue(new ExampleCommand(m_exampleSubsystem));
+
+    // // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
+    // // cancelling on release.
+    // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+
   }
 
   /**
@@ -56,8 +98,10 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
-    return Autos.exampleAuto(m_exampleSubsystem);
-  }
+
+
+  // public Command getAutonomousCommand() {
+  //   // An example command will be run in autonomous
+  //   // return Autos.exampleAuto(m_exampleSubsystem);
+  // }
 }
