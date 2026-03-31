@@ -87,7 +87,7 @@ public final class Constants {
 
     //Camera
     public static final AprilTagFields kField = AprilTagFields.kDefaultField;
-    public static final String kCameraName = "NAME";
+    public static final String kCameraName = "USB_Camera (2)";
     public static final Transform3d kRobotToCam = new Transform3d(
         Units.inchesToMeters(10), 0, Units.inchesToMeters(10), 
         new Rotation3d(0   , 0, 0)

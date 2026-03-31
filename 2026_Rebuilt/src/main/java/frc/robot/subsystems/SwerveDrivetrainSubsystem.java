@@ -191,6 +191,12 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
             System.out.println("Fused Heading "+Navx.getFusedHeading()+" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             System.out.println("Current Yaw: "+ Navx.getYaw()+" !!!!!!!!!!!!!");
 
+            position[0] = frontLeftModule.modulePosition;
+            position[1] = frontRightModule.modulePosition;
+            position[2] = backLeftModule.modulePosition;
+            position[3] = backRightModule.modulePosition;
+
+
          
         }
 
@@ -202,11 +208,22 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
             return this.getSwerveKinematics();
         }
 
+        public void zeroYaw(){
+            Navx.zeroYaw();
+        }
 
         public void periodic(){
             
-            // drivePoseEstimator.update(Navx.getRotation2d(), position);
+            drivePoseEstimator.update(Navx.getRotation2d(), position);
+            System.out.println("ROBOT POSE: " + drivePoseEstimator.getEstimatedPosition());
 
         }       
 
+        public void driveAuto(double kPforDistance){
+            System.out.println("IN THE AUTO DRIVE");
+
+            chassisSpeeds = new ChassisSpeeds(0, 0.3, 0);
+            setSpeed(chassisSpeeds);
+          
+        }
 }

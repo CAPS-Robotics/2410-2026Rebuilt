@@ -52,15 +52,14 @@ public class IntakeSubsystem extends SubsystemBase{
 
 
     public void intake(){
-        roller.set(-0.5);
+        roller.set(-0.75);
         System.out.println("Encoder:" + pivotEncoder.getPosition());
         System.out.println("LIMIT SWITCH" +  pivotLimitSwitch.get());
 
     }
 
     public void outake(){
-        roller.set(0.5
-        );
+        roller.set(0.75);
         System.out.println("OUTAKE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
     }
@@ -83,6 +82,7 @@ public class IntakeSubsystem extends SubsystemBase{
         }
         System.out.println("EXTENDING INTAKE !!!!!!!!!!!!!!!!!!");
         System.out.println("PIVOT MOTOR SPEED "+ extendSpeed);
+        System.out.println("PIVOT ENCODER: "+ pivotEncoder.getPosition());
 
         pivotMotor.set(extendSpeed); 
 

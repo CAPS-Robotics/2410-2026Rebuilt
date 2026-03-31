@@ -44,8 +44,8 @@ public class ShooterSubsystem extends SubsystemBase
     
     // Lead Flywheel Motor
     private SparkFlex flywheel_1_motor = new SparkFlex(22, MotorType.kBrushless);
-    private SparkFlexConfig leadMotor = new SparkFlexConfig();  
-    // private SparkClosedLoopController flywheel_1 = flywheel_1_motor.getClosedLoopController();
+    private SparkClosedLoopController pidController = flywheel_1_motor.getClosedLoopController();
+    private SparkFlexConfig flywheel_pid = new SparkFlexConfig();
 
     //Follower Flywheel Motor
     private SparkFlex flywheel_2_motor = new SparkFlex(10, MotorType.kBrushless);
@@ -70,11 +70,17 @@ public class ShooterSubsystem extends SubsystemBase
 
         public ShooterSubsystem()
         {
+            flywheel_pid.closedLoop
+                .p(3)
+                .i(0)
+                .d(0)
+                .outputRange(-1.0, 1.0);
+
             flywheelFollower.follow(22, true);
             backRollerFollower.follow(flywheel_1_motor, true);
             flywheel_1_motor.setInverted(true);
     
-            // flywheel_1_motor.configure(leadMotor, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+            flywheel_1_motor.configure(flywheel_pid, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
             flywheel_2_motor.configure(flywheelFollower, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
             backRoller.configure(backRollerFollower, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
             
@@ -164,21 +170,25 @@ public class ShooterSubsystem extends SubsystemBase
          * @version 2.2.0
          * @return 
          */
-        public void idleFlywheel()
-        {
+        public void idleFlywheel(){
             //Sets Idle Speed
-            flywheel_1_motor.set(0.3);
+            flywheel_1_motor.set(0);
             feederRollerMotor.set(0);
             // backRoller.set(100);
             // flywheel_1.setSetpoint(100, ControlType.kVelocity);
         }
-        public void unstick()
-        {
+        public void unstick(){
             //Sets Idle Speed
             // flywheel_1_motor.set(-.3);
             feederRollerMotor.set(-0.75);
             // backRoller.set(100);
             // flywheel_1.setSetpoint(100, ControlType.kVelocity);
+        }
+
+
+        public void ferry(){
+            feederRollerMotor.set(-0.75);
+            flywheel_1_motor.set(1);
         }
 
 }

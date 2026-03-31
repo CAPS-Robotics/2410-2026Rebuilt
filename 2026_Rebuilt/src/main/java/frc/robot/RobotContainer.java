@@ -14,7 +14,9 @@ import frc.robot.subsystems.TransferSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
@@ -31,22 +33,26 @@ public class RobotContainer {
 
   
   // The robot's subsystems and commands are defined here...
-  public final SwerveDrivetrainSubsystem swerveDrivetrainSubsystem = new SwerveDrivetrainSubsystem();
+  // public final SwerveDrivetrainSubsystem swerveDrivetrainSubsystem = new SwerveDrivetrainSubsystem();
   private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
   private final TransferSubsystem transferSubsystem = new TransferSubsystem();
-  private final VisionSubsystem visionSubsystem = new VisionSubsystem(Constants.kCameraName, Constants.kField, Constants.kRobotToCam, swerveDrivetrainSubsystem::addVisionMeasurements);
+  // private final VisionSubsystem visionSubsystem = new VisionSubsystem(Constants.kCameraName, Constants.kField, Constants.kRobotToCam, swerveDrivetrainSubsystem::addVisionMeasurements);
 
   private final RunCommand intake = new RunCommand(()-> this.intakeSubsystem.intake(), intakeSubsystem);
   private final RunCommand outake = new RunCommand(()-> this.intakeSubsystem.outake(), intakeSubsystem);
   private final RunCommand extendIntake = new RunCommand(()-> this.intakeSubsystem.extendIntake(), intakeSubsystem);
   private final RunCommand retractIntake = new RunCommand(()-> this.intakeSubsystem.retract(), intakeSubsystem);
   private final RunCommand transfer = new RunCommand(()-> this.transferSubsystem.transfer(), transferSubsystem);
+  private final RunCommand reverseTransfer = new RunCommand(() -> this.transferSubsystem.outakeTransfer(), transferSubsystem);
   private final RunCommand unstick = new RunCommand(()-> this.shooterSubsystem.unstick(), shooterSubsystem);
   // private final InstantCommand stop = new InstantCommand(()-> this.shooterSubsystem.rev(0), shooterSubsystem);
   private final InstantCommand stopIntake = new InstantCommand(()-> this.intakeSubsystem.stopIntake(), intakeSubsystem);
   private final RunCommand shoot = new RunCommand(()-> this.shooterSubsystem.setDistance(VisionSubsystem.distanceToAprilTag), shooterSubsystem);
   private final RunCommand IdleShooter = new RunCommand(()-> this.shooterSubsystem.idleFlywheel(), shooterSubsystem);
+  // private final InstantCommand zero = new InstantCommand(()-> this.swerveDrivetrainSubsystem.zeroYaw(), swerveDrivetrainSubsystem);
+  private final InstantCommand zero = new InstantCommand(()-> this.transferSubsystem.stopTranser(), transferSubsystem);
+
   // private final RunCommand shoot = new RunCommand(()-> this.shooterSubsystem.shoot(), shooterSubsystem);
 
   // private final Command setDistance(double distance) {
@@ -68,7 +74,7 @@ public class RobotContainer {
     // Configure the trigger bindings
     configureBindings();
     
-    visionSubsystem.periodic();
+    // visionSubsystem.periodic();
 
     
   }
@@ -85,15 +91,17 @@ public class RobotContainer {
   private void configureBindings() {
 
     // m_driverController.button(2).onTrue(stop);
-    m_driverController.button(1).onTrue(outake);
-    m_driverController.button(3).onTrue(intake);
-    m_driverController.button(2).onTrue(stopIntake);
-    m_driverController.button(5).onTrue(extendIntake);
-    m_driverController.button(6).onTrue(retractIntake);
+    // m_driverController.button(1).onTrue(outake); n
+    // m_driverController.button(3).onTrue(intake);
+    // m_driverController.button(2).onTrue(stopIntake);
+    // m_driverController.button(5).onTrue(extendIntake);
+    // m_driverController.button(6).onTrue(retractIntake);
     m_driverController.button(7).onTrue(transfer);
-    m_driverController.button(8).whileTrue(shoot);
-    m_driverController.button(8).onFalse(IdleShooter);
+    m_driverController.button(8).whileTrue(reverseTransfer);
+    // m_driverController.button(8).onFalse(IdleShooter);
     m_driverController.button(4).onTrue(unstick);
+    m_driverController.button(9).onTrue(zero);
+
 
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
     // new Trigger(m_exampleSubsystem::exampleCondition)

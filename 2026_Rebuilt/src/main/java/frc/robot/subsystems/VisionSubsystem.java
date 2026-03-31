@@ -22,8 +22,10 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -53,6 +55,15 @@ public class VisionSubsystem extends SubsystemBase {
     AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(tagLayout); 
     visionEstimator = new PhotonPoseEstimator(fieldLayout, CamtoRobot);
     camera = new PhotonCamera(cameraName);
+
+    this.setDefaultCommand(new RunCommand(()-> this.Vision(), this ));
+
+  }
+
+  public void Vision(){
+    System.out.println("IN VISION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+     
+
   }
 
   
@@ -67,32 +78,18 @@ public class VisionSubsystem extends SubsystemBase {
             }
             updateEstimationStdDevs(visionEst, result.getTargets());
 
-            for(var id : result.getTargets()){
-                if(id.getFiducialId() == 9){
+            for(var id : result.getTargets()){  
+                if(id.getFiducialId() == 9 ||id.getFiducialId() == 10 ||id.getFiducialId() == 25||id.getFiducialId() == 26 ){
                     HubTarget = id;
                     distanceToAprilTag = this.distanceToAprilTag(HubTarget);
+                   
                     continue;
 
-                }else if (id.getFiducialId() == 10 ){
-                    HubTarget = id;
-                    distanceToAprilTag = this.distanceToAprilTag(HubTarget);
-                    continue;
-                
-                }else if (id.getFiducialId() == 21){
-                    HubTarget = id;
-                    distanceToAprilTag = this.distanceToAprilTag(HubTarget);
-                    continue;
-
-
-                }else if(id.getFiducialId() == 22){
-                    HubTarget = id;
-                    distanceToAprilTag = this.distanceToAprilTag(HubTarget);
-                    continue;
-
-                }
+                } 
+                 System.out.println("Distance:!!!!!!!!!!!!!!!!!!!!!!!!" + distanceToAprilTag);           
             }
 
-        }
+        }  
 
   visionEst.ifPresent(
                     est -> {
@@ -100,8 +97,9 @@ public class VisionSubsystem extends SubsystemBase {
                         var estStdDevs = getEstimationStdDevs();
 
                         estConsumer.accept(est.estimatedPose.toPose2d(), est.timestampSeconds, estStdDevs);
-                    });
-}
+                    });  
+
+  }
 
 private void updateEstimationStdDevs(
             Optional<EstimatedRobotPose> estimatedPose, List<PhotonTrackedTarget> targets) {
