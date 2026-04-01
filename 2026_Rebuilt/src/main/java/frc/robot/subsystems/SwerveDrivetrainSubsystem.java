@@ -219,11 +219,32 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
 
         }       
 
-        public void driveAuto(double kPforDistance){
+        public void driveMiddle(double kPforDistance){
             System.out.println("IN THE AUTO DRIVE");
 
-            chassisSpeeds = new ChassisSpeeds(0, 0.3, 0);
+            chassisSpeeds = new ChassisSpeeds(0, Units.inchesToMeters(kPforDistance)/5, 0);
             setSpeed(chassisSpeeds);
           
         }
+
+        public void driveSide(double kPforDistance){
+            System.out.println("IN THE AUTO DRIVE");
+
+            chassisSpeeds = new ChassisSpeeds(0, Units.inchesToMeters(kPforDistance)/5, 0);
+            setSpeed(chassisSpeeds);
+        }
+
+        public void turnRight(double kPforAngle){
+            chassisSpeeds = new ChassisSpeeds(0, 0, Units.degreesToRadians(kPforAngle)/5);
+            setSpeed(chassisSpeeds);
+
+        }
+
+        public void turnLeft(double kPforAngle){
+
+            chassisSpeeds = new ChassisSpeeds(0, 0, -Units.degreesToRadians(kPforAngle)/5);
+            setSpeed(chassisSpeeds);
+
+        }
+
 }

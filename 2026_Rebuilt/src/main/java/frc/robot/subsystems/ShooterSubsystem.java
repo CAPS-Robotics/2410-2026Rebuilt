@@ -170,7 +170,7 @@ public class ShooterSubsystem extends SubsystemBase
          * @version 2.2.0
          * @return 
          */
-        public void idleFlywheel(){
+        public void idleMode(){
             //Sets Idle Speed
             flywheel_1_motor.set(0);
             feederRollerMotor.set(0);
