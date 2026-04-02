@@ -96,10 +96,13 @@ public class SwerveModule {
     public SwerveModuleState getModuleState(){
         return moduleState;
     }
+     */
+
     public SwerveModulePosition getModulePosition(){
-       return modulePosition = new SwerveModulePosition(distanceMoved, Angle);
+        setModulePosition();
+        return modulePosition = new SwerveModulePosition(distanceMoved, Angle);
     }
-    */
+   
     
     public void setModuleState(SwerveModuleState state){
 
@@ -130,7 +133,7 @@ public class SwerveModule {
  
         //Set Steering Speed and Driving Speed
         steeringMotor.set(steeringModifier*pidSpeed);
-        driveMotor.set(driveModifier*moduleState.speedMetersPerSecond);
+        driveMotor.set(driveModifier*moduleState.speedMetersPerSecond * Constants.kSwerveDampner);
 
        
         

@@ -81,6 +81,8 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
     SwerveDrivePoseEstimator swerveDrivePoseEstimator; 
     
     double distanceAprilTag;
+
+    RobotConfig config;
    
     
 
@@ -98,46 +100,46 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
             drivePoseEstimator = new SwerveDrivePoseEstimator(
                 kinematics, 
                 Navx.getRotation2d(), 
-                position, 
+                new SwerveModulePosition[]{frontLeftModule.getModulePosition(), 
+                                           frontRightModule.getModulePosition(), 
+                                           backLeftModule.getModulePosition(), 
+                                           backRightModule.getModulePosition() }, 
                 initialrobotPose2d,
                 stateStdDevs,
                 visionStdDevs);
+
+                try{
+                config = RobotConfig.fromGUISettings();
+                } catch (Exception e) {
+                // Handle exception as needed
+                e.printStackTrace();
+                }
+
+
+            AutoBuilder.configure(
+                            this::getEstimatedRobotPose, // Robot pose supplier
+                            this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
+                            this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                            (speeds, feedforwards) -> setSpeed(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+                            new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
+                                    new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
+                                    new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
+                            ),
+                            config, // The robot configuration
+                                () -> {
+                                // Boolean supplier that controls when the path will be mirrored for the red alliance
+                                // This will flip the path being followed to the red side of the field.
+                                // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+                                var alliance = DriverStation.getAlliance();
+                                if (alliance.isPresent()) {
+                                    return alliance.get() == DriverStation.Alliance.Red;
+                                }
+                                return false;
+                                },
+                            this // Reference to this subsystem to set requirements
+                    );
             
-
-
-
-            RobotConfig config;
-    try{
-      config = RobotConfig.fromGUISettings();
-    } catch (Exception e) {
-      // Handle exception as needed
-      e.printStackTrace();
-    }
-
-    // Configure AutoBuilder last
-    // AutoBuilder.configure(
-    //         this.getEstimatedPosition(), // Robot pose supplier
-    //         this.resetPose(initialrobotPose2d), // Method to reset odometry (will be called if your auto has a starting pose)
-    //         this::chassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-    //         (speeds, feedforwards) -> this.setSpeed(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
-    //         new PPHolonomicDriveController( // PPHolonomicController is the built in path following controller for holonomic drive trains
-    //                 new PIDConstants(5.0, 0.0, 0.0), // Translation PID constants
-    //                 new PIDConstants(5.0, 0.0, 0.0) // Rotation PID constants
-    //         ),
-    //         config, // The robot configuration
-    //         () -> {
-    //           // Boolean supplier that controls when the path will be mirrored for the red alliance
-    //           // This will flip the path being followed to the red side of the field.
-    //           // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
-    //           var alliance = DriverStation.getAlliance();
-    //           if (alliance.isPresent()) {
-    //             return alliance.get() == DriverStation.Alliance.Red;
-    //           }
-    //           return false;
-    //         },
-    //         this // Reference to this subsystem to set requirements
-    // );
     
         }
     
@@ -197,6 +199,8 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
     
         }
 
+        
+
             
             
         public  void setSpeed(ChassisSpeeds speed){
@@ -239,34 +243,40 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
          
         }
 
+        //Vision Pose updater
         public void addVisionMeasurements(Pose2d estimateRobotPose, double timestampSeconds, Matrix<N3,N1> visionStdDevs){
-            drivePoseEstimator.addVisionMeasurement(initialrobotPose2d, distanceAprilTag, visionStdDevs);
+            drivePoseEstimator.addVisionMeasurement(estimateRobotPose, timestampSeconds, visionStdDevs);
         }
 
+        //Getters
         public SwerveDriveKinematics getSwerveKinematics(){
             return this.getSwerveKinematics();
         }
 
-        public ChassisSpeeds getRobotRelativeSpeed(){
+        public ChassisSpeeds getChassisSpeeds(){
             return chassisSpeeds;
         }
-        
 
+        public Pose2d getEstimatedRobotPose(){
+            return drivePoseEstimator.getEstimatedPosition();
+        }
+
+
+        //Reseters
         public void zeroYaw(){
             Navx.zeroYaw();
         }
 
-        public void periodic(){
-            
-            drivePoseEstimator.update(Navx.getRotation2d(), position);
-            System.out.println("ROBOT POSE: " + drivePoseEstimator.getEstimatedPosition());
+        public void resetOdometry(Pose2d resetPose2d){
+            drivePoseEstimator.resetPose(resetPose2d);
+        }
 
-        }       
-
+       
+        //Auto Movement
         public void driveMiddle(double kPforDistance){
             System.out.println("IN THE AUTO DRIVE");
 
-            chassisSpeeds = new ChassisSpeeds(0, Units.inchesToMeters(kPforDistance)/5, 0);
+            chassisSpeeds = new ChassisSpeeds(Units.inchesToMeters(kPforDistance)/5, 0, 0);
             setSpeed(chassisSpeeds);
           
         }
@@ -274,7 +284,7 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
         public void driveSide(double kPforDistance){
             System.out.println("IN THE AUTO DRIVE");
 
-            chassisSpeeds = new ChassisSpeeds(0, Units.inchesToMeters(kPforDistance)/5, 0);
+            chassisSpeeds = new ChassisSpeeds(Units.inchesToMeters(kPforDistance)/5, 0, 0);
             setSpeed(chassisSpeeds);
         }
 
@@ -291,4 +301,32 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
 
         }
 
+
+        //drive Modes
+        public void intakeMode(double SpeedDampner){
+
+            Constants.kSwerveDampner = SpeedDampner;
+
+        }
+
+        public void driveMode(){
+            
+            Constants.kSwerveDampner = 1;
+        }
+
+
+
+
+        //Update Odometry
+         public void periodic(){
+            
+            drivePoseEstimator.update(Navx.getRotation2d(), new SwerveModulePosition[]{frontLeftModule.getModulePosition(), 
+                                                                                       frontRightModule.getModulePosition(), 
+                                                                                       backLeftModule.getModulePosition(), 
+                                                                                       backRightModule.getModulePosition() });
+
+
+            System.out.println("ROBOT POSE: " + drivePoseEstimator.getEstimatedPosition());
+
+        }       
 }

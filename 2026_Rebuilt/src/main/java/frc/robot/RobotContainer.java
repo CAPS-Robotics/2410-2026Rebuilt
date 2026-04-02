@@ -13,8 +13,9 @@ import frc.robot.subsystems.SwerveDrivetrainSubsystem;
 import frc.robot.subsystems.TransferSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 
-
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -35,10 +36,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
  */
 public class RobotContainer {
 
+  //PathPlanner
+  private final SendableChooser<Command> autoChooser;
+
   
   // The robot's subsystems and commands are defined here...
-  public static final SwerveDrivetrainSubsystem swerveDrivetrainSubsystem = new SwerveDrivetrainSubsystem();
-  private final static ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+    private final SwerveDrivetrainSubsystem swerveDrivetrainSubsystem = new SwerveDrivetrainSubsystem();
+    private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
     private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
     private final TransferSubsystem transferSubsystem = new TransferSubsystem();
     // private final VisionSubsystem visionSubsystem = new VisionSubsystem(Constants.kCameraName, Constants.kField, Constants.kRobotToCam, swerveDrivetrainSubsystem::addVisionMeasurements);
@@ -59,9 +63,9 @@ public class RobotContainer {
     private final InstantCommand stopTransfer = new InstantCommand(()-> this.transferSubsystem.stopTranser(), transferSubsystem);
   
     //Flywheel Commands
-    public static final RunCommand shoot = new RunCommand(()-> shooterSubsystem.setDistance(VisionSubsystem.distanceToAprilTag), shooterSubsystem);
-  private final Command fire = new RunCommand(()-> this.shooterSubsystem.unstick(), shooterSubsystem).alongWith(Transfer);
-  private final RunCommand IdleShooter = new RunCommand(()-> this.shooterSubsystem.idleMode(), shooterSubsystem);
+    public final Command shoot = (new RunCommand(()-> shooterSubsystem.setDistance(VisionSubsystem.distanceToAprilTag), shooterSubsystem)).withTimeout(5);
+    private final Command fire = new RunCommand(()-> this.shooterSubsystem.unstick(), shooterSubsystem).alongWith(Transfer);
+    private final RunCommand IdleShooter = new RunCommand(()-> this.shooterSubsystem.idleMode(), shooterSubsystem);
   
   //Gyro Reset
   private final InstantCommand zero = new InstantCommand(()-> this.swerveDrivetrainSubsystem.zeroYaw(), swerveDrivetrainSubsystem);
@@ -69,10 +73,10 @@ public class RobotContainer {
 
 
  //Auto Commands 
-  public static final Command middleAuto = new RunCommand( ()-> swerveDrivetrainSubsystem.driveMiddle(-113), swerveDrivetrainSubsystem);
-  private final RunCommand sideMove = new RunCommand( ()-> this.swerveDrivetrainSubsystem.driveSide(182), swerveDrivetrainSubsystem);
-  private final RunCommand turnRight = new RunCommand(() -> this.swerveDrivetrainSubsystem.turnRight(45), swerveDrivetrainSubsystem);
-  private final RunCommand turnLeft = new RunCommand(() -> this.swerveDrivetrainSubsystem.turnLeft(45), swerveDrivetrainSubsystem);
+  public  final Command middleAuto = (new RunCommand( ()-> this.swerveDrivetrainSubsystem.driveMiddle(-113), swerveDrivetrainSubsystem)).withTimeout(5);
+  private final Command sideMove = (new RunCommand( ()-> this.swerveDrivetrainSubsystem.driveSide(182), swerveDrivetrainSubsystem)).withTimeout(5);
+  private final Command turnRight = (new RunCommand(() -> this.swerveDrivetrainSubsystem.turnRight(45), swerveDrivetrainSubsystem)).withTimeout(5);
+  private final Command turnLeft = (new RunCommand(() -> this.swerveDrivetrainSubsystem.turnLeft(45), swerveDrivetrainSubsystem)).withTimeout(5);
 
   private final WaitCommand revWait = new WaitCommand(10);
   
@@ -86,6 +90,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    autoChooser = AutoBuilder.buildAutoChooser("Hello");
     // Configure the trigger bindings
     configureBindings();
 
@@ -131,17 +136,16 @@ public class RobotContainer {
     switch(Constants.AutoPicker){
       case 1: 
           // System.out.println("Left Auto Selected");
-          return this.sideMove.withTimeout(5);
-          // .alongWith(shoot).withTimeout(5)
-          //               .andThen(turnRight).alongWith(shoot).withTimeout(5)
-          //               .andThen(reverseTransfer).alongWith(fire).alongWith(shoot).withTimeout(5);
+          return this.sideMove.andThen(turnRight).alongWith(shoot)
+                              .andThen(fire).alongWith(shoot);
 
 
       case 2:
         System.out.println("Middle Auto Selected");
-        return this.middleAuto.withTimeout(5).alongWith(shoot)
+        return this.middleAuto.withTimeout(5);
+                              /* .alongWith(shoot)
                               .andThen(revWait)
-                              .andThen(reverseTransfer).alongWith(fire).alongWith(shoot);
+                              .andThen(reverseTransfer).alongWith(fire).alongWith(shoot);*/
 
 
       case 3:
@@ -156,6 +160,8 @@ public class RobotContainer {
         return null;
 
       }
+
+      //return autoChooser.getSelected();
     }
     
 
