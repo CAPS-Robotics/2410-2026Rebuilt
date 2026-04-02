@@ -37,29 +37,29 @@ public class RobotContainer {
 
   
   // The robot's subsystems and commands are defined here...
-  public final SwerveDrivetrainSubsystem swerveDrivetrainSubsystem = new SwerveDrivetrainSubsystem();
-  private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-  private final TransferSubsystem transferSubsystem = new TransferSubsystem();
-  // private final VisionSubsystem visionSubsystem = new VisionSubsystem(Constants.kCameraName, Constants.kField, Constants.kRobotToCam, swerveDrivetrainSubsystem::addVisionMeasurements);
-
-
-  //Teleop OP Commands
-
-  //Intake Commands
-  private final RunCommand intake = new RunCommand(()-> this.intakeSubsystem.intake(), intakeSubsystem);
-  private final InstantCommand stopIntake = new InstantCommand(()-> this.intakeSubsystem.stopIntake(), intakeSubsystem);
-  private final Command outake = new RunCommand(()-> this.intakeSubsystem.outake() , intakeSubsystem).andThen(new RunCommand(()-> this.transferSubsystem.outakeTransfer(), transferSubsystem));
-  private final RunCommand extendIntake = new RunCommand(()-> this.intakeSubsystem.extendIntake(), intakeSubsystem);
-  private final RunCommand retractIntake = new RunCommand(()-> this.intakeSubsystem.retract(), intakeSubsystem);
-
-  //Transfer Commands
-  private final RunCommand reverseTransfer = new RunCommand(()-> this.transferSubsystem.outakeTransfer(), transferSubsystem);
-  private final RunCommand Transfer = new RunCommand(() -> this.transferSubsystem.transfer(), transferSubsystem);
-  private final InstantCommand stopTransfer = new InstantCommand(()-> this.transferSubsystem.stopTranser(), transferSubsystem);
-
-  //Flywheel Commands
-  private final RunCommand shoot = new RunCommand(()-> this.shooterSubsystem.setDistance(VisionSubsystem.distanceToAprilTag), shooterSubsystem);
+  public static final SwerveDrivetrainSubsystem swerveDrivetrainSubsystem = new SwerveDrivetrainSubsystem();
+  private final static ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+    private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    private final TransferSubsystem transferSubsystem = new TransferSubsystem();
+    // private final VisionSubsystem visionSubsystem = new VisionSubsystem(Constants.kCameraName, Constants.kField, Constants.kRobotToCam, swerveDrivetrainSubsystem::addVisionMeasurements);
+  
+  
+    //Teleop OP Commands
+  
+    //Intake Commands
+    private final RunCommand intake = new RunCommand(()-> this.intakeSubsystem.intake(), intakeSubsystem);
+    private final InstantCommand stopIntake = new InstantCommand(()-> this.intakeSubsystem.stopIntake(), intakeSubsystem);
+    private final Command outake = new RunCommand(()-> this.intakeSubsystem.outake() , intakeSubsystem).andThen(new RunCommand(()-> this.transferSubsystem.outakeTransfer(), transferSubsystem));
+    private final RunCommand extendIntake = new RunCommand(()-> this.intakeSubsystem.extendIntake(), intakeSubsystem);
+    private final RunCommand retractIntake = new RunCommand(()-> this.intakeSubsystem.retract(), intakeSubsystem);
+  
+    //Transfer Commands
+    private final RunCommand reverseTransfer = new RunCommand(()-> this.transferSubsystem.outakeTransfer(), transferSubsystem);
+    private final RunCommand Transfer = new RunCommand(() -> this.transferSubsystem.transfer(), transferSubsystem);
+    private final InstantCommand stopTransfer = new InstantCommand(()-> this.transferSubsystem.stopTranser(), transferSubsystem);
+  
+    //Flywheel Commands
+    public static final RunCommand shoot = new RunCommand(()-> shooterSubsystem.setDistance(VisionSubsystem.distanceToAprilTag), shooterSubsystem);
   private final Command fire = new RunCommand(()-> this.shooterSubsystem.unstick(), shooterSubsystem).alongWith(Transfer);
   private final RunCommand IdleShooter = new RunCommand(()-> this.shooterSubsystem.idleMode(), shooterSubsystem);
   
@@ -69,7 +69,7 @@ public class RobotContainer {
 
 
  //Auto Commands 
-  private final Command middleAuto = new RunCommand( ()-> this.swerveDrivetrainSubsystem.driveMiddle(113), swerveDrivetrainSubsystem);
+  public static final Command middleAuto = new RunCommand( ()-> swerveDrivetrainSubsystem.driveMiddle(-113), swerveDrivetrainSubsystem);
   private final RunCommand sideMove = new RunCommand( ()-> this.swerveDrivetrainSubsystem.driveSide(182), swerveDrivetrainSubsystem);
   private final RunCommand turnRight = new RunCommand(() -> this.swerveDrivetrainSubsystem.turnRight(45), swerveDrivetrainSubsystem);
   private final RunCommand turnLeft = new RunCommand(() -> this.swerveDrivetrainSubsystem.turnLeft(45), swerveDrivetrainSubsystem);
@@ -130,10 +130,11 @@ public class RobotContainer {
     
     switch(Constants.AutoPicker){
       case 1: 
-          System.out.println("Left Auto Selected");
-          return this.sideMove.withTimeout(5).alongWith(shoot)
-                        .andThen(turnRight).withTimeout(5).alongWith(shoot)
-                        .andThen(reverseTransfer).alongWith(fire).alongWith(shoot).withTimeout(5);
+          // System.out.println("Left Auto Selected");
+          return this.sideMove.withTimeout(5);
+          // .alongWith(shoot).withTimeout(5)
+          //               .andThen(turnRight).alongWith(shoot).withTimeout(5)
+          //               .andThen(reverseTransfer).alongWith(fire).alongWith(shoot).withTimeout(5);
 
 
       case 2:
