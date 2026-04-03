@@ -101,5 +101,6 @@ public final class Constants {
 
     //AutoConstants
     public static final int AutoPicker = 1;
+    public static int Commandblock = 1;
 
 }

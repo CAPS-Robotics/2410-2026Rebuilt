@@ -181,6 +181,8 @@ public class ShooterSubsystem extends SubsystemBase
             //Sets Idle Speed
             // flywheel_1_motor.set(-.3);
             feederRollerMotor.set(-0.75);
+            flywheel_1_motor.set(0.65);
+
             // backRoller.set(100);
             // flywheel_1.setSetpoint(100, ControlType.kVelocity);
         }

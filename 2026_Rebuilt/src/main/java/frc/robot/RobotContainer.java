@@ -37,7 +37,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
 
   //PathPlanner
-  private final SendableChooser<Command> autoChooser;
+  // private final SendableChooser<Command> autoChooser;
 
   
   // The robot's subsystems and commands are defined here...
@@ -90,7 +90,7 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    autoChooser = AutoBuilder.buildAutoChooser("Hello");
+    // autoChooser = AutoBuilder.buildAutoChooser("Hello");
     // Configure the trigger bindings
     configureBindings();
 
@@ -132,34 +132,54 @@ public class RobotContainer {
 
 
   public Command getAutonomousCommand() {
+
+    if(Constants.Commandblock == 1){
+          System.out.println("IN COMMAND BLOCK ! @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+          return this.middleAuto;
+
+        }else if(Constants.Commandblock == 2){
+          System.out.println("IN COMMAND BLOCK 2%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+
+          return this.Transfer.withTimeout(10);
+        }else if(Constants.Commandblock == 3){
+          System.out.println("IN COMMAND BLOCK 3***********************************************");
+
+
+          return this.revWait.andThen(fire);
+        }else{
+
+          Constants.Commandblock = 1;
+          return null;
+        }
     
-    switch(Constants.AutoPicker){
-      case 1: 
-          // System.out.println("Left Auto Selected");
-          return this.sideMove.andThen(turnRight).alongWith(shoot)
-                              .andThen(fire).alongWith(shoot);
+    // switch(Constants.AutoPicker){
+    //   case 1:
+        
+    //       // System.out.println("Left Auto Selected");
+    //       /*.andThen(turnRight) .alongWith(shoot)
+    //                           .andThen(fire).alongWith(shoot)*/;
 
 
-      case 2:
-        System.out.println("Middle Auto Selected");
-        return this.middleAuto.withTimeout(5);
-                              /* .alongWith(shoot)
-                              .andThen(revWait)
-                              .andThen(reverseTransfer).alongWith(fire).alongWith(shoot);*/
+    //   case 2:
+    //     System.out.println("Middle Auto Selected");
+    //     return this.middleAuto.withTimeout(5);
+    //                           /* .alongWith(shoot)
+    //                           .andThen(revWait)
+    //                           .andThen(reverseTransfer).alongWith(fire).alongWith(shoot);*/
 
 
-      case 3:
-        System.out.println("Right Auto Selected");
-        return this.sideMove.withTimeout(5).alongWith(shoot)
-                        .andThen(turnLeft).withTimeout(5).alongWith(shoot)
-                        .andThen(reverseTransfer).alongWith(fire).alongWith(shoot).withTimeout(5);
+    //   case 3:
+    //     System.out.println("Right Auto Selected");
+    //     return this.sideMove.withTimeout(5).alongWith(shoot)
+    //                     .andThen(turnLeft).withTimeout(5).alongWith(shoot)
+    //                     .andThen(reverseTransfer).alongWith(fire).alongWith(shoot).withTimeout(5);
 
 
-      default:
-        System.out.println("No Auto Selected");
-        return null;
+    //   default:
+    //     System.out.println("No Auto Selected");
+    //     return null;
 
-      }
+    //   }
 
       //return autoChooser.getSelected();
     }

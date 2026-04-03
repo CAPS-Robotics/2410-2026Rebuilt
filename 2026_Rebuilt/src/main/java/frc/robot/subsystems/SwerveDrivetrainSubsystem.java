@@ -116,7 +116,7 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
                 }
 
 
-            AutoBuilder.configure(
+            /*AutoBuilder.configure(
                             this::getEstimatedRobotPose, // Robot pose supplier
                             this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
                             this::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
@@ -138,7 +138,7 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
                                 return false;
                                 },
                             this // Reference to this subsystem to set requirements
-                    );
+                    );*/
             
     
         }
@@ -205,7 +205,7 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
             
         public  void setSpeed(ChassisSpeeds speed){
             // System.out.println("Setting states " );
-            System.out.println("Speed: "+speed);
+            //System.out.println("Speed: "+speed);
             states = kinematics.toSwerveModuleStates(speed);
             
 
@@ -231,8 +231,8 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
             backRightModule.setModulePosition();
 
             // swerveDrivePoseEstimator.update(getCurrentYaw(), updatePositions());
-            System.out.println("Fused Heading "+Navx.getFusedHeading()+" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            System.out.println("Current Yaw: "+ Navx.getYaw()+" !!!!!!!!!!!!!");
+            //System.out.println("Fused Heading "+Navx.getFusedHeading()+" !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            //System.out.println("Current Yaw: "+ Navx.getYaw()+" !!!!!!!!!!!!!");
 
             position[0] = frontLeftModule.modulePosition;
             position[1] = frontRightModule.modulePosition;
@@ -289,7 +289,7 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
         }
 
         public void turnRight(double kPforAngle){
-            chassisSpeeds = new ChassisSpeeds(0, 0, Units.degreesToRadians(kPforAngle)/5);
+            chassisSpeeds = new ChassisSpeeds(0, 0, 0.5);
             setSpeed(chassisSpeeds);
 
         }
@@ -326,7 +326,7 @@ public class SwerveDrivetrainSubsystem extends SubsystemBase{
                                                                                        backRightModule.getModulePosition() });
 
 
-            System.out.println("ROBOT POSE: " + drivePoseEstimator.getEstimatedPosition());
+            //System.out.println("ROBOT POSE: " + drivePoseEstimator.getEstimatedPosition());
 
         }       
 }
