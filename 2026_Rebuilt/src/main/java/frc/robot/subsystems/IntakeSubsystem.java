@@ -72,10 +72,10 @@ public class IntakeSubsystem extends SubsystemBase{
     public void extendIntake(){
 
 
-        extendSpeed = 0.15;
+        extendSpeed = -0.15;
 
         
-        if(pivotEncoder.getPosition() > 13){
+        if(pivotEncoder.getPosition() < -15.5){
 
             extendSpeed = 0; 
 
@@ -90,7 +90,7 @@ public class IntakeSubsystem extends SubsystemBase{
 
     public void retract(){
 
-        extendSpeed = -0.15;
+        extendSpeed = 0.15;
         if(Math.abs((pivotEncoder.getPosition() - 0)) < 5 && !pivotLimitSwitch.get()){
 
             extendSpeed = 0;
@@ -101,6 +101,7 @@ public class IntakeSubsystem extends SubsystemBase{
 
         System.out.println("RETRACTING INTAKE !!!!!!!!!!!!!!!!!!");
         System.out.println("PIVOT MOTOR SPEED "+ extendSpeed);
+        System.out.println("LIMIT SWITCH BOOLEAN "+ pivotLimitSwitch.get());
 
         pivotMotor.set(extendSpeed);
 

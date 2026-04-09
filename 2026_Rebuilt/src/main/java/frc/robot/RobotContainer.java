@@ -114,12 +114,12 @@ public class RobotContainer {
     // m_driverController.button(1).onTrue(outake); 
     // m_driverController.button(3).onTrue(intake);
     // m_driverController.button(2).onTrue(stopIntake);
-    // m_driverController.button(5).onTrue(extendIntake);
-    // m_driverController.button(6).onTrue(retractIntake);
-    m_driverController.button(8).whileTrue(Transfer);
+    m_driverController.button(5).onTrue(extendIntake);
+    m_driverController.button(6).onTrue(retractIntake);
+    //m_driverController.button(8).whileTrue(Transfer);
     // m_driverController.button(8).onFalse(IdleShooter);
-    m_driverController.button(4).onTrue(fire);
-    m_driverController.button(9).onTrue(stopTransfer);
+    //m_driverController.button(4).onTrue(fire);
+    //m_driverController.button(9).onTrue(stopTransfer);
 
 
   }
