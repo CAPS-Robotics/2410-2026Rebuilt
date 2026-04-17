@@ -56,7 +56,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
 
 
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     System.out.println("GETTING COMMAND $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
 
     // // schedule the autonomous command (example)
@@ -64,7 +64,7 @@ public class Robot extends TimedRobot {
       System.out.println("IN AUTONOMOUS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
       for( int x = 1 ; x <= 4 ; x++){
         Constants.Commandblock = x;
-        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+        // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
         System.out.println("Auto Iteration!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + x);
         CommandScheduler.getInstance().schedule(m_autonomousCommand);

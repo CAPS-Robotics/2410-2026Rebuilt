@@ -26,7 +26,7 @@ public class TransferSubsystem extends SubsystemBase{
   
     public void transfer(){
 
-        transferLeadMotor.set(-0.2);
+        transferLeadMotor.set(0.2);
 
     }
 
@@ -38,7 +38,7 @@ public class TransferSubsystem extends SubsystemBase{
 
     public void outakeTransfer(){
 
-        transferLeadMotor.set(0.2 );
+        transferLeadMotor.set(-0.2 );
 
     }
 

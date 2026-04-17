@@ -5,9 +5,8 @@
 package frc.robot;
 
 import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
-import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
+
+import frc.robot.subsystems.IntakeSubsystemClass;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveDrivetrainSubsystem;
 import frc.robot.subsystems.TransferSubsystem;
@@ -43,7 +42,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
     private final SwerveDrivetrainSubsystem swerveDrivetrainSubsystem = new SwerveDrivetrainSubsystem();
     private final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
-    private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    private final IntakeSubsystemClass intakeSubsystem = new IntakeSubsystemClass();
     private final TransferSubsystem transferSubsystem = new TransferSubsystem();
     // private final VisionSubsystem visionSubsystem = new VisionSubsystem(Constants.kCameraName, Constants.kField, Constants.kRobotToCam, swerveDrivetrainSubsystem::addVisionMeasurements);
   
@@ -53,7 +52,7 @@ public class RobotContainer {
     //Intake Commands
     private final RunCommand intake = new RunCommand(()-> this.intakeSubsystem.intake(), intakeSubsystem);
     private final InstantCommand stopIntake = new InstantCommand(()-> this.intakeSubsystem.stopIntake(), intakeSubsystem);
-    private final Command outake = new RunCommand(()-> this.intakeSubsystem.outake() , intakeSubsystem).andThen(new RunCommand(()-> this.transferSubsystem.outakeTransfer(), transferSubsystem));
+    private final Command outake = new RunCommand(()-> this.intakeSubsystem.outake() , intakeSubsystem);
     private final RunCommand extendIntake = new RunCommand(()-> this.intakeSubsystem.extendIntake(), intakeSubsystem);
     private final RunCommand retractIntake = new RunCommand(()-> this.intakeSubsystem.retract(), intakeSubsystem);
   
@@ -63,8 +62,8 @@ public class RobotContainer {
     private final InstantCommand stopTransfer = new InstantCommand(()-> this.transferSubsystem.stopTranser(), transferSubsystem);
   
     //Flywheel Commands
-    public final Command shoot = (new RunCommand(()-> shooterSubsystem.setDistance(VisionSubsystem.distanceToAprilTag), shooterSubsystem)).withTimeout(5);
-    private final Command fire = new RunCommand(()-> this.shooterSubsystem.unstick(), shooterSubsystem).alongWith(Transfer);
+    public final RunCommand revFlywheel = (new RunCommand(()-> this.shooterSubsystem.rev(60), shooterSubsystem));
+    private final RunCommand fire = new RunCommand(()-> {this.shooterSubsystem.unstick();}, shooterSubsystem);
     private final RunCommand IdleShooter = new RunCommand(()-> this.shooterSubsystem.idleMode(), shooterSubsystem);
   
   //Gyro Reset
@@ -74,7 +73,7 @@ public class RobotContainer {
 
  //Auto Commands 
   public  final Command middleAuto = (new RunCommand( ()-> this.swerveDrivetrainSubsystem.driveMiddle(-113), swerveDrivetrainSubsystem)).withTimeout(5);
-  private final Command sideMove = (new RunCommand( ()-> this.swerveDrivetrainSubsystem.driveSide(182), swerveDrivetrainSubsystem)).withTimeout(5);
+  private final Command sideMove = (new RunCommand( ()-> this.swerveDrivetrainSubsystem.driveSide(-182), swerveDrivetrainSubsystem)).withTimeout(5);
   private final Command turnRight = (new RunCommand(() -> this.swerveDrivetrainSubsystem.turnRight(45), swerveDrivetrainSubsystem)).withTimeout(5);
   private final Command turnLeft = (new RunCommand(() -> this.swerveDrivetrainSubsystem.turnLeft(45), swerveDrivetrainSubsystem)).withTimeout(5);
 
@@ -110,16 +109,17 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
-    // m_driverController.button(2).onTrue(stop);
     // m_driverController.button(1).onTrue(outake); 
     // m_driverController.button(3).onTrue(intake);
     // m_driverController.button(2).onTrue(stopIntake);
-    m_driverController.button(5).onTrue(extendIntake);
-    m_driverController.button(6).onTrue(retractIntake);
-    //m_driverController.button(8).whileTrue(Transfer);
+    // m_driverController.button(5).onTrue(extendIntake);
+    // m_driverController.button(6).onTrue(retractIntake);
+    // m_driverController.button(8).whileTrue(revFlywheel);
     // m_driverController.button(8).onFalse(IdleShooter);
-    //m_driverController.button(4).onTrue(fire);
-    //m_driverController.button(9).onTrue(stopTransfer);
+    // m_driverController.button(8).onFalse(stopTransfer);
+    // m_driverController.button(4).onTrue(fire);
+    // m_driverController.button(4).onTrue(Transfer);
+    m_driverController.button(9).onTrue(zero);
 
 
   }
@@ -140,48 +140,21 @@ public class RobotContainer {
         }else if(Constants.Commandblock == 2){
           System.out.println("IN COMMAND BLOCK 2%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
 
-          return this.Transfer.withTimeout(10);
+          return this.revWait.alongWith(revFlywheel);
         }else if(Constants.Commandblock == 3){
           System.out.println("IN COMMAND BLOCK 3***********************************************");
 
 
-          return this.revWait.andThen(fire);
+          return this.fire.alongWith(Transfer);
         }else{
 
           Constants.Commandblock = 1;
           return null;
         }
+
     
-    // switch(Constants.AutoPicker){
-    //   case 1:
-        
-    //       // System.out.println("Left Auto Selected");
-    //       /*.andThen(turnRight) .alongWith(shoot)
-    //                           .andThen(fire).alongWith(shoot)*/;
 
-
-    //   case 2:
-    //     System.out.println("Middle Auto Selected");
-    //     return this.middleAuto.withTimeout(5);
-    //                           /* .alongWith(shoot)
-    //                           .andThen(revWait)
-    //                           .andThen(reverseTransfer).alongWith(fire).alongWith(shoot);*/
-
-
-    //   case 3:
-    //     System.out.println("Right Auto Selected");
-    //     return this.sideMove.withTimeout(5).alongWith(shoot)
-    //                     .andThen(turnLeft).withTimeout(5).alongWith(shoot)
-    //                     .andThen(reverseTransfer).alongWith(fire).alongWith(shoot).withTimeout(5);
-
-
-    //   default:
-    //     System.out.println("No Auto Selected");
-    //     return null;
-
-    //   }
-
-      //return autoChooser.getSelected();
+    //   // return autoChooser.getSelected();
     }
     
 
