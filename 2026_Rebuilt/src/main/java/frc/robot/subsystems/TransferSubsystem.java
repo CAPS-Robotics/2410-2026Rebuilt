@@ -14,7 +14,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 public class TransferSubsystem extends SubsystemBase{
 
 
-    private SparkMax transferLeadMotor = new SparkMax(23, MotorType.kBrushless);
+    private SparkMax transferLeadMotor = new SparkMax(10, MotorType.kBrushless);
     
     
     public TransferSubsystem(){

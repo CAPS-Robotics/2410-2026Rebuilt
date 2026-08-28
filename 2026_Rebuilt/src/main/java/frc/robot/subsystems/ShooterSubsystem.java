@@ -44,18 +44,19 @@ public class ShooterSubsystem extends SubsystemBase
     
     // Lead Flywheel Motor
     private SparkFlex flywheel_1_motor = new SparkFlex(22, MotorType.kBrushless);
+    
     private SparkClosedLoopController pidController = flywheel_1_motor.getClosedLoopController();
     private SparkFlexConfig flywheel_pid = new SparkFlexConfig();
 
     //Follower Flywheel Motor
-    private SparkFlex flywheel_2_motor = new SparkFlex(10, MotorType.kBrushless);
+    private SparkFlex flywheel_2_motor = new SparkFlex(23, MotorType.kBrushless);
     private SparkFlexConfig flywheelFollower = new SparkFlexConfig();
     // private SparkClosedLoopController flywheel_2 = flywheel_2_motor.getClosedLoopController();
     private double flywheelTargetRPM;
     private double pidValue;
 
     // feederRoller BackRoller Motor
-    private SparkMax feederRollerMotor = new SparkMax(62, MotorType.kBrushless);
+    private SparkMax feederRollerMotor = new SparkMax(25, MotorType.kBrushless);
     // private SparkClosedLoopController backRollers = backRollers_motor.getClosedLoopController();
 
     
@@ -78,10 +79,9 @@ public class ShooterSubsystem extends SubsystemBase
 
             flywheelFollower.follow(22, true);
             backRollerFollower.follow(flywheel_1_motor, true);
-            flywheel_1_motor.setInverted(true);
     
             flywheel_1_motor.configure(flywheel_pid, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-            flywheel_2_motor.configure(flywheelFollower, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+            // flywheel_2_motor.configure(flywheelFollower, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
             backRoller.configure(backRollerFollower, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
             
         
@@ -172,7 +172,7 @@ public class ShooterSubsystem extends SubsystemBase
          */
         public void idleMode(){
             //Sets Idle Speed
-            flywheel_1_motor.set(0);
+            flywheel_1_motor.set(0.2);
             feederRollerMotor.set(0);
             // backRoller.set(100);
             // flywheel_1.setSetpoint(100, ControlType.kVelocity);
